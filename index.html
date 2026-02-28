@@ -368,8 +368,19 @@
   </div>
 
   <div class="bottom-info">
-    <div class="permission-banner" id="perm-banner">📱 나침반 권한을 허용해주세요</div>
-    <div class="hint-text">화살표 방향으로 걸어가세요</div>
+    <button id="compass-btn" onclick="askCompassPermission()" style="
+      display:none;
+      background: rgba(255,60,95,0.15);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      padding: 14px 28px;
+      cursor: pointer;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    ">📱 여기 눌러서 나침반 허용</button>
+    <div class="hint-text" id="hint-text" style="display:none">화살표 방향으로 걸어가세요</div>
   </div>
 </div>
 
@@ -565,16 +576,37 @@ function requestCompass() {
     window.addEventListener('deviceorientationabsolute', handleOrientation, true);
     window.addEventListener('deviceorientation', handleOrientation, true);
   };
+
   if (typeof DeviceOrientationEvent !== 'undefined' &&
       typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission()
-      .then(r => { if (r === 'granted') listen(); else document.getElementById('perm-banner').style.display = 'block'; })
-      .catch(() => document.getElementById('perm-banner').style.display = 'block');
+    // iOS 13+ — 반드시 사용자 제스처(버튼 클릭)에서 호출해야 함
+    // 일단 버튼 보여주기
+    document.getElementById('compass-btn').style.display = 'block';
+    document.getElementById('hint-text').style.display = 'none';
   } else {
+    // Android 등
     listen();
+    document.getElementById('compass-btn').style.display = 'none';
+    document.getElementById('hint-text').style.display = 'block';
   }
-  // Desktop/fallback: slow rotate arrow for demo
+  // 데스크톱 시뮬레이션
   simulInterval = setInterval(() => { deviceHeading = (deviceHeading + 0.35) % 360; updateArrow(); }, 50);
+}
+
+function askCompassPermission() {
+  DeviceOrientationEvent.requestPermission()
+    .then(r => {
+      if (r === 'granted') {
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+        window.addEventListener('deviceorientation', handleOrientation, true);
+        document.getElementById('compass-btn').style.display = 'none';
+        document.getElementById('hint-text').style.display = 'block';
+        if (simulInterval) { clearInterval(simulInterval); simulInterval = null; }
+      } else {
+        showToast('나침반 권한이 거부됐어요 ㅠㅠ Safari 설정을 확인해주세요');
+      }
+    })
+    .catch(() => showToast('나침반 권한 요청 실패'));
 }
 
 function handleOrientation(e) {
