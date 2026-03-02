@@ -294,7 +294,7 @@
   </div>
 
   <button class="btn-primary" onclick="startGame()">출발하기 →</button>
-  <div class="sub">연남동 38 · 신봉동 15 · 죽전동 20곳 수록</div>
+  <div id="gps-status" class="sub">📡 GPS 위치 잡는 중...</div>
 </div>
 
 <!-- ========== GAME ========== -->
@@ -468,15 +468,19 @@ function selectRadius(btn) {
 // START
 // ============================================================
 async function startGame() {
-  showLoading(true, 'GPS 위치 확인 중...');
-  try {
-    const pos = await getPosition();
-    userLat = pos.coords.latitude;
-    userLng = pos.coords.longitude;
-  } catch(e) {
+  // 이미 GPS 잡혀있으면 바로 진행, 아니면 새로 요청
+  if (!userLat) {
+    showLoading(true, 'GPS 위치 확인 중...');
+    try {
+      const pos = await getPosition();
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+    } catch(e) {
+      showLoading(false);
+      showToast('📍 GPS 권한을 허용해주세요');
+      return;
+    }
     showLoading(false);
-    showToast('📍 GPS 권한을 허용해주세요');
-    return;
   }
 
   // 선택한 반경 안에 있는 카페 필터
@@ -761,6 +765,48 @@ function stopConfetti() {
   cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
   particles=[];
 }
+
+// ============================================================
+// 앱 시작시 GPS 미리 워밍업
+// ============================================================
+function initGPS() {
+  if (!navigator.geolocation) return;
+  const statusEl = document.getElementById('gps-status');
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      if (statusEl) {
+        statusEl.textContent = '📍 위치 확인됨';
+        statusEl.style.color = 'var(--green)';
+      }
+    },
+    () => {
+      if (statusEl) {
+        statusEl.textContent = '⚠️ GPS 권한을 허용해주세요';
+        statusEl.style.color = 'var(--accent)';
+      }
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+
+  // 백그라운드에서 계속 정확도 높이기
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      if (statusEl) {
+        statusEl.textContent = '📍 위치 확인됨';
+        statusEl.style.color = 'var(--green)';
+      }
+    },
+    () => {},
+    { enableHighAccuracy: true, maximumAge: 0 }
+  );
+}
+
+window.addEventListener('load', initGPS);
 </script>
 </body>
 </html>
