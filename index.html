@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -8,274 +7,271 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
 
-:root {
-–bg: #0a0a0f;
-–surface: #12121a;
-–accent: #ff3c5f;
-–gold: #f5c842;
-–text: #e8e4dc;
-–muted: #4a4860;
-–glow: rgba(255,60,95,0.4);
-–green: #4ade80;
-}
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --accent: #ff3c5f;
+    --gold: #f5c842;
+    --text: #e8e4dc;
+    --muted: #4a4860;
+    --glow: rgba(255,60,95,0.4);
+    --green: #4ade80;
+  }
 
-- { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-background: var(–bg);
-color: var(–text);
-font-family: ‘Space Mono’, monospace;
-height: 100dvh;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-overflow: hidden;
-user-select: none;
-position: relative;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    position: relative;
+  }
 
-body::before {
-content: ‘’;
-position: fixed; inset: 0;
-background-image:
-linear-gradient(rgba(255,60,95,0.04) 1px, transparent 1px),
-linear-gradient(90deg, rgba(255,60,95,0.04) 1px, transparent 1px);
-background-size: 40px 40px;
-pointer-events: none;
-}
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,60,95,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,60,95,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
 
-body::after {
-content: ‘’;
-position: fixed; inset: 0;
-background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
-pointer-events: none;
-}
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+  }
 
-/* ========== SHARED ========== */
-.screen {
-display: none;
-flex-direction: column;
-align-items: center;
-z-index: 10;
-width: 100%;
-max-width: 380px;
-padding: 28px 24px;
-}
-.screen.active { display: flex; }
+  /* ========== SHARED ========== */
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 24px;
+  }
+  .screen.active { display: flex; }
 
-.heart-icon { font-size: 2.6rem; animation: heartbeat 1.5s ease-in-out infinite; margin-bottom: 4px; }
-@keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+  .heart-icon { font-size: 2.6rem; animation: heartbeat 1.5s ease-in-out infinite; margin-bottom: 4px; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
 
-.title-ko {
-font-family: ‘Nanum Myeongjo’, serif;
-font-size: clamp(2rem, 8vw, 3rem);
-font-weight: 700;
-letter-spacing: -0.02em;
-line-height: 1.15;
-text-align: center;
-margin-bottom: 4px;
-}
-.title-ko span { color: var(–accent); }
+  .title-ko {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .title-ko span { color: var(--accent); }
 
-.sub { font-size: 0.62rem; color: var(–muted); letter-spacing: 0.18em; text-transform: uppercase; }
-.desc { font-size: 0.73rem; color: var(–muted); max-width: 280px; line-height: 1.9; text-align: center; }
+  .sub { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; }
+  .desc { font-size: 0.73rem; color: var(--muted); max-width: 280px; line-height: 1.9; text-align: center; }
 
-/* ========== BUTTONS ========== */
-.btn-primary {
-background: var(–accent); color: #fff; border: none;
-font-family: ‘Space Mono’, monospace; font-size: 0.9rem; font-weight: 700;
-letter-spacing: 0.12em; padding: 15px; cursor: pointer;
-clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-transition: all 0.2s; text-transform: uppercase; width: 100%;
-}
-.btn-primary:hover, .btn-primary:active { background: #ff1a40; box-shadow: 0 0 24px var(–glow); }
+  /* ========== BUTTONS ========== */
+  .btn-primary {
+    background: var(--accent); color: #fff; border: none;
+    font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700;
+    letter-spacing: 0.12em; padding: 15px; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s; text-transform: uppercase; width: 100%;
+  }
+  .btn-primary:hover, .btn-primary:active { background: #ff1a40; box-shadow: 0 0 24px var(--glow); }
 
-.btn-outline {
-background: transparent; color: var(–accent); border: 1px solid var(–accent);
-font-family: ‘Space Mono’, monospace; font-size: 0.72rem; font-weight: 700;
-letter-spacing: 0.12em; padding: 12px; cursor: pointer;
-clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-transition: all 0.2s; text-transform: uppercase; width: 100%;
-}
-.btn-outline:hover, .btn-outline:active { background: var(–accent); color: #fff; box-shadow: 0 0 20px var(–glow); }
+  .btn-outline {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.12em; padding: 12px; cursor: pointer;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    transition: all 0.2s; text-transform: uppercase; width: 100%;
+  }
+  .btn-outline:hover, .btn-outline:active { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--glow); }
 
-/* ========== START SCREEN ========== */
-#start-screen { gap: 20px; text-align: center; }
+  /* ========== START SCREEN ========== */
+  #start-screen { gap: 20px; text-align: center; }
 
-.section-label {
-font-size: 0.58rem; color: var(–muted); letter-spacing: 0.2em;
-text-transform: uppercase; text-align: left; width: 100%;
-}
+  .section-label {
+    font-size: 0.58rem; color: var(--muted); letter-spacing: 0.2em;
+    text-transform: uppercase; text-align: left; width: 100%;
+  }
 
-/* Radius selector */
-.radius-wrap { display: flex; gap: 8px; width: 100%; }
-.radius-btn {
-flex: 1; background: var(–surface); border: 1px solid var(–muted);
-color: var(–muted); font-family: ‘Space Mono’, monospace; font-size: 0.68rem;
-letter-spacing: 0.08em; padding: 10px 0; cursor: pointer;
-clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
-transition: all 0.15s; text-align: center;
-}
-.radius-btn.active { background: rgba(255,60,95,0.15); border-color: var(–accent); color: var(–accent); }
+  /* Radius selector */
+  .radius-wrap { display: flex; gap: 8px; width: 100%; }
+  .radius-btn {
+    flex: 1; background: var(--surface); border: 1px solid var(--muted);
+    color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.08em; padding: 10px 0; cursor: pointer;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+    transition: all 0.15s; text-align: center;
+  }
+  .radius-btn.active { background: rgba(255,60,95,0.15); border-color: var(--accent); color: var(--accent); }
 
-.options-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .options-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
-/* ========== GAME SCREEN ========== */
-#game-screen {
-justify-content: space-between;
-height: 100dvh;
-padding: 44px 24px 36px;
-gap: 0;
-}
+  /* ========== GAME SCREEN ========== */
+  #game-screen {
+    justify-content: space-between;
+    height: 100dvh;
+    padding: 44px 24px 36px;
+    gap: 0;
+  }
 
-.top-info { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .top-info { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
-.distance-display {
-font-size: clamp(2.8rem, 13vw, 4.5rem);
-font-weight: 700; letter-spacing: -0.03em; line-height: 1;
-}
-.distance-display .unit { font-size: 0.38em; color: var(–muted); letter-spacing: 0.1em; }
-.distance-label { font-size: 0.6rem; color: var(–muted); letter-spacing: 0.2em; text-transform: uppercase; }
+  .distance-display {
+    font-size: clamp(2.8rem, 13vw, 4.5rem);
+    font-weight: 700; letter-spacing: -0.03em; line-height: 1;
+  }
+  .distance-display .unit { font-size: 0.38em; color: var(--muted); letter-spacing: 0.1em; }
+  .distance-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
 
-.status-dot {
-width: 6px; height: 6px; border-radius: 50%; background: var(–accent);
-display: inline-block; margin-right: 6px;
-animation: pulse 2s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    display: inline-block; margin-right: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-/* Compass */
-.compass-wrap {
-position: relative;
-width: min(270px, 72vw); height: min(270px, 72vw);
-display: flex; align-items: center; justify-content: center;
-}
-.compass-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(255,60,95,0.2); }
-.compass-ring::before { content:’’; position:absolute; inset:12px; border-radius:50%; border:1px solid rgba(255,60,95,0.1); }
-.compass-inner { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
-#arrow-container { position:absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
-.arrow-svg {
-width:58%; height:58%;
-filter: drop-shadow(0 0 14px var(–accent)) drop-shadow(0 0 28px rgba(255,60,95,0.3));
-}
-.center-dot { position:absolute; width:10px; height:10px; background:var(–gold); border-radius:50%; box-shadow:0 0 8px var(–gold); z-index:5; }
-.cardinal { position:absolute; font-size:0.6rem; color:var(–muted); letter-spacing:.1em; }
-.cardinal.n { top:4px; left:50%; transform:translateX(-50%); }
-.cardinal.s { bottom:4px; left:50%; transform:translateX(-50%); }
-.cardinal.e { right:4px; top:50%; transform:translateY(-50%); }
-.cardinal.w { left:4px; top:50%; transform:translateY(-50%); }
+  /* Compass */
+  .compass-wrap {
+    position: relative;
+    width: min(270px, 72vw); height: min(270px, 72vw);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .compass-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(255,60,95,0.2); }
+  .compass-ring::before { content:''; position:absolute; inset:12px; border-radius:50%; border:1px solid rgba(255,60,95,0.1); }
+  .compass-inner { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  #arrow-container { position:absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  .arrow-svg {
+    width:58%; height:58%;
+    filter: drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(255,60,95,0.3));
+  }
+  .center-dot { position:absolute; width:10px; height:10px; background:var(--gold); border-radius:50%; box-shadow:0 0 8px var(--gold); z-index:5; }
+  .cardinal { position:absolute; font-size:0.6rem; color:var(--muted); letter-spacing:.1em; }
+  .cardinal.n { top:4px; left:50%; transform:translateX(-50%); }
+  .cardinal.s { bottom:4px; left:50%; transform:translateX(-50%); }
+  .cardinal.e { right:4px; top:50%; transform:translateY(-50%); }
+  .cardinal.w { left:4px; top:50%; transform:translateY(-50%); }
 
-/* Bottom controls */
-.bottom-controls { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
+  /* Bottom controls */
+  .bottom-controls { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
 
-#compass-btn {
-background: rgba(255,60,95,0.12); border: 1px solid var(–accent); color: var(–accent);
-font-family: ‘Space Mono’, monospace; font-size: 0.68rem; letter-spacing: 0.1em;
-padding: 12px 24px; cursor: pointer;
-clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-display: none;
-}
+  #compass-btn {
+    background: rgba(255,60,95,0.12); border: 1px solid var(--accent); color: var(--accent);
+    font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em;
+    padding: 12px 24px; cursor: pointer;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    display: none;
+  }
 
-.hint-text { font-size:0.6rem; color:var(–muted); letter-spacing:.15em; text-transform:uppercase; display:none; }
+  .hint-text { font-size:0.6rem; color:var(--muted); letter-spacing:.15em; text-transform:uppercase; display:none; }
 
-/* Test reveal */
-.test-row { display:flex; align-items:center; gap:8px; }
-#test-toggle-btn {
-background: transparent; border: 1px dashed var(–muted); color: var(–muted);
-font-family: ‘Space Mono’, monospace; font-size: 0.58rem; letter-spacing: 0.1em;
-padding: 7px 14px; cursor: pointer;
-clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-transition: all 0.15s; text-transform: uppercase; white-space: nowrap;
-}
-#test-toggle-btn.revealed { border-color: rgba(245,200,66,0.5); color: var(–gold); }
+  /* Test reveal */
+  .test-row { display:flex; align-items:center; gap:8px; }
+  #test-toggle-btn {
+    background: transparent; border: 1px dashed var(--muted); color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em;
+    padding: 7px 14px; cursor: pointer;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    transition: all 0.15s; text-transform: uppercase; white-space: nowrap;
+  }
+  #test-toggle-btn.revealed { border-color: rgba(245,200,66,0.5); color: var(--gold); }
 
-#dest-box {
-display: none;
-font-family: ‘Nanum Myeongjo’, serif;
-font-size: 0.82rem; color: var(–gold);
-text-align: center; line-height: 1.6;
-padding: 8px 14px;
-border: 1px dashed rgba(245,200,66,0.3);
-background: rgba(245,200,66,0.05);
-width: 100%;
-}
-#dest-box .dest-addr { font-family: ‘Space Mono’, monospace; font-size: 0.58rem; color: var(–muted); display:block; margin-top:3px; }
+  #dest-box {
+    display: none;
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 0.82rem; color: var(--gold);
+    text-align: center; line-height: 1.6;
+    padding: 8px 14px;
+    border: 1px dashed rgba(245,200,66,0.3);
+    background: rgba(245,200,66,0.05);
+    width: 100%;
+  }
+  #dest-box .dest-addr { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--muted); display:block; margin-top:3px; }
 
-/* ========== 50m ALERT BANNER ========== */
-#near-alert {
-display: none;
-position: fixed; top: 0; left: 0; right: 0;
-background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(74,222,128,0.05));
-border-bottom: 1px solid var(–green);
-z-index: 30;
-padding: 14px 20px;
-flex-direction: column; align-items: center; gap: 10px;
-}
-.near-title { font-size: 0.72rem; color: var(–green); letter-spacing: 0.15em; text-transform: uppercase; }
-.near-title .near-dot { display:inline-block; width:7px; height:7px; background:var(–green); border-radius:50%; margin-right:7px; animation: pulse 1s ease-in-out infinite; }
+  /* ========== 50m ALERT BANNER ========== */
+  #near-alert {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(74,222,128,0.05));
+    border-bottom: 1px solid var(--green);
+    z-index: 30;
+    padding: 14px 20px;
+    flex-direction: column; align-items: center; gap: 10px;
+  }
+  .near-title { font-size: 0.72rem; color: var(--green); letter-spacing: 0.15em; text-transform: uppercase; }
+  .near-title .near-dot { display:inline-block; width:7px; height:7px; background:var(--green); border-radius:50%; margin-right:7px; animation: pulse 1s ease-in-out infinite; }
 
-#near-reveal-btn {
-background: rgba(74,222,128,0.15); border: 1px solid var(–green); color: var(–green);
-font-family: ‘Space Mono’, monospace; font-size: 0.65rem; letter-spacing: 0.12em;
-padding: 9px 20px; cursor: pointer;
-clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
-transition: all 0.2s; text-transform: uppercase;
-}
-#near-reveal-btn:hover { background: rgba(74,222,128,0.3); }
+  #near-reveal-btn {
+    background: rgba(74,222,128,0.15); border: 1px solid var(--green); color: var(--green);
+    font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+    padding: 9px 20px; cursor: pointer;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  #near-reveal-btn:hover { background: rgba(74,222,128,0.3); }
 
-#near-name-box {
-display: none;
-font-family: ‘Nanum Myeongjo’, serif;
-font-size: 1.1rem; color: var(–green);
-text-align: center; line-height: 1.6;
-padding: 8px 16px;
-border: 1px solid rgba(74,222,128,0.3);
-background: rgba(74,222,128,0.08);
-width: 100%;
-max-width: 300px;
-}
+  #near-name-box {
+    display: none;
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1.1rem; color: var(--green);
+    text-align: center; line-height: 1.6;
+    padding: 8px 16px;
+    border: 1px solid rgba(74,222,128,0.3);
+    background: rgba(74,222,128,0.08);
+    width: 100%;
+    max-width: 300px;
+  }
 
-/* ========== LOADING ========== */
-#loading-overlay {
-display: none; position: fixed; inset: 0;
-background: rgba(10,10,15,0.92); z-index: 50;
-flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-}
-.loader-ring { width:52px; height:52px; border:2px solid var(–muted); border-top-color:var(–accent); border-radius:50%; animation:spin .8s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
-.loader-text { font-size:0.68rem; color:var(–muted); letter-spacing:.15em; text-transform:uppercase; }
+  /* ========== LOADING ========== */
+  #loading-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,10,15,0.92); z-index: 50;
+    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  }
+  .loader-ring { width:52px; height:52px; border:2px solid var(--muted); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loader-text { font-size:0.68rem; color:var(--muted); letter-spacing:.15em; text-transform:uppercase; }
 
-/* ========== TOAST ========== */
-#toast {
-display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-background: rgba(255,60,95,0.15); border: 1px solid var(–accent); color: var(–accent);
-font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; white-space: nowrap;
-}
+  /* ========== TOAST ========== */
+  #toast {
+    display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,60,95,0.15); border: 1px solid var(--accent); color: var(--accent);
+    font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; white-space: nowrap;
+  }
 
-/* ========== ARRIVAL SCREEN ========== */
-#arrival-screen { gap: 16px; text-align: center; }
-.arrival-emoji { font-size: 3rem; }
-.arrival-title { font-family:‘Nanum Myeongjo’,serif; font-size:clamp(1.8rem,7vw,2.6rem); font-weight:700; color:var(–gold); text-shadow:0 0 24px rgba(245,200,66,0.4); line-height:1.2; }
-.place-badge { font-size:.58rem; color:var(–accent); letter-spacing:.2em; text-transform:uppercase; border:1px solid var(–accent); padding:5px 14px; clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%); }
-.place-reveal { font-family:‘Nanum Myeongjo’,serif; font-size:clamp(1.4rem,5.5vw,2rem); color:var(–text); line-height:1.3; }
-.place-address { font-size:.63rem; color:var(–muted); max-width:280px; line-height:1.8; }
-.btn-row { display:flex; gap:10px; width:100%; max-width:300px; }
-.btn-row .btn-outline { flex:1; }
+  /* ========== ARRIVAL SCREEN ========== */
+  #arrival-screen { gap: 16px; text-align: center; }
+  .arrival-emoji { font-size: 3rem; }
+  .arrival-title { font-family:'Nanum Myeongjo',serif; font-size:clamp(1.8rem,7vw,2.6rem); font-weight:700; color:var(--gold); text-shadow:0 0 24px rgba(245,200,66,0.4); line-height:1.2; }
+  .place-badge { font-size:.58rem; color:var(--accent); letter-spacing:.2em; text-transform:uppercase; border:1px solid var(--accent); padding:5px 14px; clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%); }
+  .place-reveal { font-family:'Nanum Myeongjo',serif; font-size:clamp(1.4rem,5.5vw,2rem); color:var(--text); line-height:1.3; }
+  .place-address { font-size:.63rem; color:var(--muted); max-width:280px; line-height:1.8; }
+  .btn-row { display:flex; gap:10px; width:100%; max-width:300px; }
+  .btn-row .btn-outline { flex:1; }
 
-#confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:5; }
+  #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:5; }
 </style>
-
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
-
 <div id="loading-overlay"><div class="loader-ring"></div><div class="loader-text" id="loader-text">위치 확인 중...</div></div>
 <div id="toast"></div>
 
 <!-- 50m 근접 알림 배너 -->
-
 <div id="near-alert">
   <div class="near-title"><span class="near-dot"></span>거의 다 왔어요! 10m 이내</div>
   <button id="near-reveal-btn" onclick="toggleNearName()">☕ 카페 이름 보기</button>
@@ -283,7 +279,6 @@ font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; whit
 </div>
 
 <!-- ========== START ========== -->
-
 <div id="start-screen" class="screen active">
   <div class="heart-icon">💘</div>
   <div class="title-ko">몰래<br><span>데이트</span><br>나침반</div>
@@ -298,13 +293,11 @@ font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; whit
     </div>
   </div>
 
-<button class="btn-primary" onclick="startGame()">출발하기 →</button>
-
-  <div class="sub">연남동 · 홍대 · 죽전동 카페 90곳 수록</div>
+  <button class="btn-primary" onclick="startGame()">출발하기 →</button>
+  <div class="sub">연남동 39 · 신봉동 22 · 죽전동 26곳 수록</div>
 </div>
 
 <!-- ========== GAME ========== -->
-
 <div id="game-screen" class="screen">
   <div class="top-info">
     <div class="distance-display">
@@ -335,19 +328,15 @@ font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; whit
     <button id="compass-btn" onclick="askCompassPermission()">📱 여기 눌러서 나침반 허용</button>
     <div class="hint-text" id="hint-text">화살표 방향으로 걸어가세요</div>
 
-```
-<!-- 테스트용 목적지 보기 -->
-<div class="test-row">
-  <button id="test-toggle-btn" onclick="toggleDestination()">🔍 목적지 보기</button>
-</div>
-<div id="dest-box"></div>
-```
-
+    <!-- 테스트용 목적지 보기 -->
+    <div class="test-row">
+      <button id="test-toggle-btn" onclick="toggleDestination()">🔍 목적지 보기</button>
+    </div>
+    <div id="dest-box"></div>
   </div>
 </div>
 
 <!-- ========== ARRIVAL ========== -->
-
 <div id="arrival-screen" class="screen">
   <div class="arrival-emoji">🎉</div>
   <div class="arrival-title">도착했어요!</div>
@@ -365,8 +354,181 @@ font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; whit
 // CAFE DATABASE — 연남동 30곳 + 홍대 30곳
 // ============================================================
 const CAFES = [
-  // ── 연남동 ──────────────────────────────────────────────
-  { name:"연남방앗간", area:"연남동", address:"서울 마포구 연남로 57", lat:37.5607, lng:126.9246 },
+  // ── 연남동 (40곳) ────────────────────────────────────────
+  { name:"키츠네즈카", area:"연남동", address:"서울 마포구 동교로51길 51 1층", lat:37.5628, lng:126.9189 },
+  { name:"코리코카페 연남점", area:"연남동", address:"서울 마포구 성미산로 165-7", lat:37.5648, lng:126.9221 },
+  { name:"히포 브런치하우스", area:"연남동", address:"서울 마포구 성미산로17길 85 1층", lat:37.5661, lng:126.9199 },
+  { name:"버터앤쉘터 연남점", area:"연남동", address:"서울 마포구 성미산로 170 102호", lat:37.5651, lng:126.9224 },
+  { name:"녹녹", area:"연남동", address:"서울 마포구 성미산로 139 1층", lat:37.5637, lng:126.9215 },
+  { name:"문식빵", area:"연남동", address:"서울 마포구 동교로39길 4-8 1층 101호", lat:37.5601, lng:126.9196 },
+  { name:"모닝캄커피랩 연남점", area:"연남동", address:"서울 마포구 성미산로 192 1층", lat:37.5659, lng:126.9230 },
+  { name:"코이크", area:"연남동", address:"서울 마포구 동교로39길 8 1-2층", lat:37.5603, lng:126.9198 },
+  { name:"짙은산", area:"연남동", address:"서울 마포구 성미산로29안길 27 1층", lat:37.5633, lng:126.9231 },
+  { name:"롱베이케이션", area:"연남동", address:"서울 마포구 동교로38길 33-10 2층", lat:37.5598, lng:126.9201 },
+  { name:"터틀힙 연남", area:"연남동", address:"서울 마포구 연남로1길 44 1층", lat:37.5617, lng:126.9248 },
+  { name:"코코로카라", area:"연남동", address:"서울 마포구 연남로1길 41", lat:37.5615, lng:126.9247 },
+  { name:"빈투파리스", area:"연남동", address:"서울 마포구 성미산로 161-11 1층", lat:37.5645, lng:126.9219 },
+  { name:"사이드테이블", area:"연남동", address:"서울 마포구 동교로47길 3", lat:37.5618, lng:126.9183 },
+  { name:"잼잼", area:"연남동", address:"서울 마포구 성미산로29길 24 지하1층", lat:37.5634, lng:126.9228 },
+  { name:"팻어케이크 연남점", area:"연남동", address:"서울 마포구 연희로1길 45 2층", lat:37.5653, lng:126.9258 },
+  { name:"카페 드 래빗", area:"연남동", address:"서울 마포구 동교로29길 10 1층", lat:37.5589, lng:126.9218 },
+  { name:"에브리데이해피벌스데이", area:"연남동", address:"서울 마포구 연희로 33 3층", lat:37.5657, lng:126.9262 },
+  { name:"라헬의 부엌 연남본점", area:"연남동", address:"서울 마포구 동교로38길 5 1층", lat:37.5596, lng:126.9193 },
+  { name:"렌디스도넛 연남점", area:"연남동", address:"서울 마포구 동교로 247", lat:37.5592, lng:126.9213 },
+  { name:"코코리코", area:"연남동", address:"서울 마포구 동교로39길 4 1층", lat:37.5601, lng:126.9195 },
+  { name:"더레어 연남본점", area:"연남동", address:"서울 마포구 동교로 269 1층", lat:37.5601, lng:126.9227 },
+  { name:"스트로베리32 연남본점", area:"연남동", address:"서울 마포구 연남로5길 8 1층", lat:37.5620, lng:126.9253 },
+  { name:"턴다운서비스", area:"연남동", address:"서울 마포구 동교로50길 7 반지층", lat:37.5623, lng:126.9181 },
+  { name:"테일러커피 연남점", area:"연남동", address:"서울 마포구 성미산로 189 1F", lat:37.5657, lng:126.9228 },
+  { name:"커피리브레 파란점", area:"연남동", address:"서울 마포구 성미산로29길 17-8", lat:37.5632, lng:126.9226 },
+  { name:"커피 리브레 연남점", area:"연남동", address:"서울 마포구 성미산로32길 20-5", lat:37.5638, lng:126.9238 },
+  { name:"연트럴다방 연남", area:"연남동", address:"서울 마포구 동교로41길 32", lat:37.5607, lng:126.9203 },
+  { name:"민트초코월드", area:"연남동", address:"서울 마포구 성미산로29길 32 1층", lat:37.5636, lng:126.9232 },
+  { name:"하우스 키루", area:"연남동", address:"서울 마포구 성미산로 174 1층", lat:37.5652, lng:126.9226 },
+  { name:"카페 레이어드 연남점", area:"연남동", address:"서울 마포구 성미산로 161-4", lat:37.5644, lng:126.9218 },
+  { name:"Osds 연남", area:"연남동", address:"서울 마포구 성미산로22길 23 1층", lat:37.5641, lng:126.9205 },
+  { name:"미라지커피", area:"연남동", address:"서울 마포구 동교로 262-6 2층", lat:37.5599, lng:126.9224 },
+  { name:"아르떼카페앤살롱", area:"연남동", address:"서울 마포구 동교로51안길 17", lat:37.5625, lng:126.9186 },
+  { name:"피프에스프레소바", area:"연남동", address:"서울 마포구 성미산로29길 5 1층", lat:37.5629, lng:126.9222 },
+  { name:"콩카페 연남점", area:"연남동", address:"서울 마포구 성미산로 161-14 1층", lat:37.5645, lng:126.9220 },
+  { name:"파롤앤랑그", area:"연남동", address:"서울 마포구 성미산로29안길 8", lat:37.5630, lng:126.9228 },
+  { name:"오흐뒤구떼", area:"연남동", address:"서울 마포구 동교로47길 10 1층", lat:37.5619, lng:126.9185 },
+  { name:"낙랑파라커피하우스", area:"연남동", address:"서울 마포구 성미산로 153 1층", lat:37.5643, lng:126.9216 },
+
+  // ── 용인 신봉동 (22곳) ───────────────────────────────────
+  { name:"바이덴 빌리지", area:"신봉동", address:"경기 용인시 수지구 신봉3로7번길 31", lat:37.3198, lng:127.0641 },
+  { name:"블랑제리", area:"신봉동", address:"경기 용인시 수지구 성복1로 106", lat:37.3154, lng:127.0589 },
+  { name:"씨투베이커리본점", area:"신봉동", address:"경기 용인시 수지구 성복2로 166", lat:37.3167, lng:127.0601 },
+  { name:"투썸플레이스 용인신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉1로 52-14", lat:37.3182, lng:127.0621 },
+  { name:"바닐라 성복", area:"신봉동", address:"경기 용인시 수지구 성복2로 130", lat:37.3160, lng:127.0594 },
+  { name:"오아시스", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-9", lat:37.3191, lng:127.0634 },
+  { name:"고딕커피", area:"신봉동", address:"경기 용인시 수지구 신봉2로 115-56 1층", lat:37.3203, lng:127.0648 },
+  { name:"마모리", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-32", lat:37.3193, lng:127.0637 },
+  { name:"카페프라헷 광교산힐스점", area:"신봉동", address:"경기 용인시 수지구 신봉2로 154", lat:37.3211, lng:127.0658 },
+  { name:"오늘도커피", area:"신봉동", address:"경기 용인시 수지구 신봉2로 73-2 1층", lat:37.3185, lng:127.0626 },
+  { name:"레빗앤몽키", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-40 1층", lat:37.3194, lng:127.0638 },
+  { name:"CAFE YOON 카페윤", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-34", lat:37.3192, lng:127.0636 },
+  { name:"사라의 정원", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-44", lat:37.3195, lng:127.0639 },
+  { name:"카페일분 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉1로 112-1", lat:37.3206, lng:127.0643 },
+  { name:"씨투베이커리 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 2", lat:37.3188, lng:127.0629 },
+  { name:"카페그램16", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-27 1층", lat:37.3191, lng:127.0634 },
+  { name:"앙로베", area:"신봉동", address:"경기 용인시 수지구 신봉1로 68", lat:37.3187, lng:127.0624 },
+  { name:"옐로우코브", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-101", lat:37.3200, lng:127.0643 },
+  { name:"아숲", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 6", lat:37.3189, lng:127.0631 },
+  { name:"카페 수지", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-30", lat:37.3192, lng:127.0635 },
+  { name:"카페블라썸", area:"신봉동", address:"경기 용인시 수지구 신봉2로 60", lat:37.3183, lng:127.0622 },
+  { name:"토프레소", area:"신봉동", address:"경기 용인시 수지구 성복1로 106", lat:37.3155, lng:127.0590 },
+
+  // ── 용인 죽전동 (26곳) ───────────────────────────────────
+  { name:"쿠로커피로스터리", area:"죽전동", address:"경기 용인시 기흥구 죽전로43번길 15-1 1층", lat:37.3358, lng:127.1121 },
+  { name:"젠젠 보정동카페거리점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 16-10 1층", lat:37.3341, lng:127.1098 },
+  { name:"스테이 어도러블", area:"죽전동", address:"경기 용인시 기흥구 죽전로43번길 15-3 1층", lat:37.3359, lng:127.1122 },
+  { name:"카페 민가", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 11-14 1층", lat:37.3338, lng:127.1094 },
+  { name:"피스 오브 피스", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 12-7 1층", lat:37.3339, lng:127.1096 },
+  { name:"더블유스타일 보정카페거리점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 7-18", lat:37.3335, lng:127.1091 },
+  { name:"카레클린트 더 카페 분당점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-15 1층", lat:37.3342, lng:127.1099 },
+  { name:"시즌드꼬숑", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 19-3", lat:37.3345, lng:127.1103 },
+  { name:"제이틴", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-5 1층", lat:37.3341, lng:127.1098 },
+  { name:"필아웃커피 보정점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 7-5 1층", lat:37.3334, lng:127.1090 },
+  { name:"휘게커피 로스터리", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 11-11 1층", lat:37.3337, lng:127.1093 },
+  { name:"토텐", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-11 1층", lat:37.3341, lng:127.1097 },
+  { name:"루안", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 14 1층", lat:37.3340, lng:127.1096 },
+  { name:"구성커피로스터스", area:"죽전동", address:"경기 용인시 기흥구 이현로29번길 81-1", lat:37.3312, lng:127.1178 },
+  { name:"파티스리 나비", area:"죽전동", address:"경기 용인시 수지구 대지로 58 1층 113호", lat:37.3289, lng:127.1041 },
+  { name:"비니비니본점", area:"죽전동", address:"경기 용인시 기흥구 죽전로 46", lat:37.3321, lng:127.1088 },
+  { name:"카페만월경 보정꽃메점", area:"죽전동", address:"경기 용인시 기흥구 보정로 109 102호", lat:37.3348, lng:127.1115 },
+  { name:"카페더치즈케익 죽전점", area:"죽전동", address:"경기 용인시 기흥구 죽전로27번길 4-1", lat:37.3328, lng:127.1102 },
+  { name:"텐퍼센트커피 용인보정점", area:"죽전동", address:"경기 용인시 기흥구 죽전로 49 1층 102호", lat:37.3324, lng:127.1093 },
+  { name:"카페프리헷 용인죽전점", area:"죽전동", address:"경기 용인시 수지구 푸른솔로 45 1층 101호", lat:37.3298, lng:127.1052 },
+  { name:"카페 소락", area:"죽전동", address:"경기 용인시 수지구 정든로6번길 5 1층", lat:37.3278, lng:127.1031 },
+  { name:"시간통로", area:"죽전동", address:"경기 용인시 수지구 정든로 15", lat:37.3281, lng:127.1035 },
+  { name:"백억커피", area:"죽전동", address:"경기 용인시 수지구 정든로6번길 2 1층 112호", lat:37.3277, lng:127.1030 },
+  { name:"밀리언 수지점", area:"죽전동", address:"경기 용인시 수지구 정든로 25 1층 101호", lat:37.3284, lng:127.1038 },
+  { name:"커피수다", area:"죽전동", address:"경기 용인시 수지구 대지로 58 101호", lat:37.3289, lng:127.1042 },
+  { name:"SC 티처스커피", area:"죽전동", address:"경기 용인시 수지구 대지로 18 1층", lat:37.3271, lng:127.1022 },
+];
+  { name:"카페 노티드 연남", area:"연남동", address:"서울 마포구 동교로 242", lat:37.5591, lng:126.9211 },
+  { name:"어니언 연남", area:"연남동", address:"서울 마포구 성미산로29길 19", lat:37.5630, lng:126.9230 },
+  { name:"레이어드 연남", area:"연남동", address:"서울 마포구 연남로 25", lat:37.5593, lng:126.9242 },
+  { name:"한남커피 연남점", area:"연남동", address:"서울 마포구 동교로 254", lat:37.5588, lng:126.9218 },
+  { name:"카페 코코넛박스", area:"연남동", address:"서울 마포구 연남로1길 36", lat:37.5615, lng:126.9251 },
+  { name:"식물카페 퍼블릭가든", area:"연남동", address:"서울 마포구 성미산로 148", lat:37.5641, lng:126.9221 },
+  { name:"연남살롱", area:"연남동", address:"서울 마포구 연남로 73", lat:37.5612, lng:126.9248 },
+  { name:"카페 딜쿠샤", area:"연남동", address:"서울 마포구 동교로 236", lat:37.5585, lng:126.9208 },
+  { name:"센터커피 연남", area:"연남동", address:"서울 마포구 연남로5길 22", lat:37.5618, lng:126.9256 },
+  { name:"에이바우트커피 연남", area:"연남동", address:"서울 마포구 성미산로29길 24", lat:37.5634, lng:126.9228 },
+  { name:"카페 텐즈", area:"연남동", address:"서울 마포구 동교로 248", lat:37.5589, lng:126.9213 },
+  { name:"요이땅 커피", area:"연남동", address:"서울 마포구 연남로 45", lat:37.5600, lng:126.9244 },
+  { name:"스몰빅커피 연남", area:"연남동", address:"서울 마포구 성미산로 141", lat:37.5638, lng:126.9218 },
+  { name:"카페 파이브얼라이브", area:"연남동", address:"서울 마포구 연남로3길 12", lat:37.5609, lng:126.9252 },
+  { name:"더 콘크리트 연남", area:"연남동", address:"서울 마포구 동교로 260", lat:37.5592, lng:126.9222 },
+  { name:"카페 봄날", area:"연남동", address:"서울 마포구 성미산로27길 8", lat:37.5626, lng:126.9234 },
+  { name:"에스프레소 네이티브", area:"연남동", address:"서울 마포구 연남로 61", lat:37.5609, lng:126.9247 },
+  { name:"카페 인더가든", area:"연남동", address:"서울 마포구 성미산로 155", lat:37.5644, lng:126.9225 },
+  { name:"로얄밀크티 연남", area:"연남동", address:"서울 마포구 동교로 244", lat:37.5590, lng:126.9212 },
+  { name:"카페 미뇽", area:"연남동", address:"서울 마포구 연남로7길 4", lat:37.5621, lng:126.9258 },
+  { name:"그라운드 커피 연남", area:"연남동", address:"서울 마포구 성미산로31길 14", lat:37.5635, lng:126.9240 },
+  { name:"카페 온도", area:"연남동", address:"서울 마포구 연남로 51", lat:37.5603, lng:126.9245 },
+  { name:"블루보틀 연남", area:"연남동", address:"서울 마포구 동교로 252", lat:37.5591, lng:126.9216 },
+  { name:"카페 식물도감", area:"연남동", address:"서울 마포구 성미산로 144", lat:37.5640, lng:126.9220 },
+  { name:"페이퍼가든 커피", area:"연남동", address:"서울 마포구 연남로 79", lat:37.5615, lng:126.9250 },
+  { name:"카페 구슬", area:"연남동", address:"서울 마포구 동교로 238", lat:37.5586, lng:126.9210 },
+  { name:"더웨이브커피 연남", area:"연남동", address:"서울 마포구 성미산로29길 18", lat:37.5632, lng:126.9227 },
+  { name:"카페 모리", area:"연남동", address:"서울 마포구 연남로2길 9", lat:37.5605, lng:126.9253 },
+  { name:"히든트랙 커피", area:"연남동", address:"서울 마포구 성미산로 150", lat:37.5642, lng:126.9222 },
+
+  // ── 용인 신봉동 ──────────────────────────────────────────
+  { name:"바이덴 빌리지", area:"신봉동", address:"경기 용인시 수지구 신봉3로7번길 31", lat:37.3198, lng:127.0641 },
+  { name:"블랑제리", area:"신봉동", address:"경기 용인시 수지구 성복1로 106", lat:37.3154, lng:127.0589 },
+  { name:"씨투베이커리본점", area:"신봉동", address:"경기 용인시 수지구 성복2로 166", lat:37.3167, lng:127.0601 },
+  { name:"투썸플레이스 용인신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉1로 52-14", lat:37.3182, lng:127.0621 },
+  { name:"바닐라 성복", area:"신봉동", address:"경기 용인시 수지구 성복2로 130", lat:37.3160, lng:127.0594 },
+  { name:"오아시스", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-9", lat:37.3191, lng:127.0634 },
+  { name:"고딕커피", area:"신봉동", address:"경기 용인시 수지구 신봉2로 115-56", lat:37.3203, lng:127.0648 },
+  { name:"마모리", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-32", lat:37.3193, lng:127.0637 },
+  { name:"카페프라헷 광교산힐스점", area:"신봉동", address:"경기 용인시 수지구 신봉2로 154", lat:37.3211, lng:127.0658 },
+  { name:"오늘도커피", area:"신봉동", address:"경기 용인시 수지구 신봉2로 73-2", lat:37.3185, lng:127.0626 },
+  { name:"레빗앤몽키", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-40", lat:37.3194, lng:127.0638 },
+  { name:"CAFE YOON 카페윤", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-34", lat:37.3192, lng:127.0636 },
+  { name:"사라의 정원", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-44", lat:37.3195, lng:127.0639 },
+  { name:"카페일분 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉1로 112-1", lat:37.3206, lng:127.0643 },
+  { name:"씨투베이커리 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 2", lat:37.3188, lng:127.0629 },
+  { name:"카페그램16", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-27", lat:37.3191, lng:127.0634 },
+  { name:"앙로베", area:"신봉동", address:"경기 용인시 수지구 신봉1로 68", lat:37.3187, lng:127.0624 },
+  { name:"옐로우코브", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-101", lat:37.3200, lng:127.0643 },
+  { name:"아숲", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 6", lat:37.3189, lng:127.0631 },
+  { name:"카페 수지", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-30", lat:37.3192, lng:127.0635 },
+  { name:"카페블라썸", area:"신봉동", address:"경기 용인시 수지구 신봉2로 60", lat:37.3183, lng:127.0622 },
+  { name:"토프레소", area:"신봉동", address:"경기 용인시 수지구 성복1로 106", lat:37.3155, lng:127.0590 },
+
+  // ── 용인 죽전동 ──────────────────────────────────────────
+  { name:"쿠로커피로스터리", area:"죽전동", address:"경기 용인시 기흥구 죽전로43번길 15-1", lat:37.3358, lng:127.1121 },
+  { name:"젠젠 보정동카페거리점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 16-10", lat:37.3341, lng:127.1098 },
+  { name:"스테이 어도러블", area:"죽전동", address:"경기 용인시 기흥구 죽전로43번길 15-3", lat:37.3359, lng:127.1122 },
+  { name:"카페 민가", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 11-14", lat:37.3338, lng:127.1094 },
+  { name:"피스 오브 피스", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 12-7", lat:37.3339, lng:127.1096 },
+  { name:"더블유스타일 보정카페거리점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 7-18", lat:37.3335, lng:127.1091 },
+  { name:"카레클린트 더 카페 분당점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-15", lat:37.3342, lng:127.1099 },
+  { name:"시즌드꼬숑", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 19-3", lat:37.3345, lng:127.1103 },
+  { name:"제이틴", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-5", lat:37.3341, lng:127.1098 },
+  { name:"필아웃커피 보정점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 7-5", lat:37.3334, lng:127.1090 },
+  { name:"휘게커피 로스터리", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 11-11", lat:37.3337, lng:127.1093 },
+  { name:"토텐", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-11", lat:37.3341, lng:127.1097 },
+  { name:"루안", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 14", lat:37.3340, lng:127.1096 },
+  { name:"구성커피로스터스", area:"죽전동", address:"경기 용인시 기흥구 이현로29번길 81-1", lat:37.3312, lng:127.1178 },
+  { name:"파티스리 나비", area:"죽전동", address:"경기 용인시 수지구 대지로 58", lat:37.3289, lng:127.1041 },
+  { name:"비니비니본점", area:"죽전동", address:"경기 용인시 기흥구 죽전로 46", lat:37.3321, lng:127.1088 },
+  { name:"카페만월경 보정꽃메점", area:"죽전동", address:"경기 용인시 기흥구 보정로 109", lat:37.3348, lng:127.1115 },
+  { name:"카페더치즈케익 죽전점", area:"죽전동", address:"경기 용인시 기흥구 죽전로27번길 4-1", lat:37.3328, lng:127.1102 },
+  { name:"텐퍼센트커피 용인보정점", area:"죽전동", address:"경기 용인시 기흥구 죽전로 49", lat:37.3324, lng:127.1093 },
+  { name:"카페프리헷 용인죽전점", area:"죽전동", address:"경기 용인시 수지구 푸른솔로 45", lat:37.3298, lng:127.1052 },
+  { name:"카페 소락", area:"죽전동", address:"경기 용인시 수지구 정든로6번길 5", lat:37.3278, lng:127.1031 },
+  { name:"시간통로", area:"죽전동", address:"경기 용인시 수지구 정든로 15", lat:37.3281, lng:127.1035 },
+  { name:"백억커피", area:"죽전동", address:"경기 용인시 수지구 정든로6번길 2", lat:37.3277, lng:127.1030 },
+  { name:"밀리언 수지점", area:"죽전동", address:"경기 용인시 수지구 정든로 25", lat:37.3284, lng:127.1038 },
+  { name:"커피수다", area:"죽전동", address:"경기 용인시 수지구 대지로 58", lat:37.3289, lng:127.1042 },
+  { name:"SC 티처스커피", area:"죽전동", address:"경기 용인시 수지구 대지로 18", lat:37.3271, lng:127.1022 },
+];
   { name:"카페 노티드 연남", area:"연남동", address:"서울 마포구 동교로 242", lat:37.5591, lng:126.9211 },
   { name:"어니언 연남", area:"연남동", address:"서울 마포구 성미산로29길 19", lat:37.5630, lng:126.9230 },
   { name:"레이어드 연남", area:"연남동", address:"서울 마포구 연남로 25", lat:37.5593, lng:126.9242 },
@@ -398,68 +560,7 @@ const CAFES = [
   { name:"히든트랙 커피", area:"연남동", address:"서울 마포구 성미산로 150", lat:37.5642, lng:126.9222 },
 
   // ── 홍대입구역 근처 ──────────────────────────────────────
-  { name:"카페 노티드 홍대", area:"홍대", address:"서울 마포구 와우산로 94", lat:37.5545, lng:126.9239 },
-  { name:"연남장 커피", area:"홍대", address:"서울 마포구 어울마당로 130", lat:37.5560, lng:126.9244 },
-  { name:"카페 빈브라더스 홍대", area:"홍대", address:"서울 마포구 와우산로 21길 19", lat:37.5531, lng:126.9234 },
-  { name:"앤트러사이트 홍대", area:"홍대", address:"서울 마포구 토정로 111", lat:37.5513, lng:126.9179 },
-  { name:"카페 마리아쥬 홍대", area:"홍대", address:"서울 마포구 와우산로 53", lat:37.5522, lng:126.9230 },
-  { name:"홀썸커피 홍대", area:"홍대", address:"서울 마포구 어울마당로 62", lat:37.5553, lng:126.9224 },
-  { name:"커피한약방", area:"홍대", address:"서울 마포구 홍익로6길 7", lat:37.5567, lng:126.9213 },
-  { name:"카페 레이어드 홍대", area:"홍대", address:"서울 마포구 와우산로29길 22", lat:37.5540, lng:126.9247 },
-  { name:"스타벅스 홍대점", area:"홍대", address:"서울 마포구 양화로 188", lat:37.5572, lng:126.9245 },
-  { name:"카페 어니언 홍대", area:"홍대", address:"서울 마포구 와우산로 33", lat:37.5518, lng:126.9228 },
-  { name:"커피프린스 1호점", area:"홍대", address:"서울 마포구 와우산로 39", lat:37.5524, lng:126.9231 },
-  { name:"카페 루나틱", area:"홍대", address:"서울 마포구 홍익로 15", lat:37.5561, lng:126.9218 },
-  { name:"드롭탑 홍대", area:"홍대", address:"서울 마포구 어울마당로 77", lat:37.5558, lng:126.9230 },
-  { name:"카페 드파운드", area:"홍대", address:"서울 마포구 와우산로 76", lat:37.5549, lng:126.9241 },
-  { name:"블랙업커피 홍대", area:"홍대", address:"서울 마포구 홍익로4길 13", lat:37.5565, lng:126.9210 },
-  { name:"카페 알레그리아", area:"홍대", address:"서울 마포구 와우산로 61", lat:37.5527, lng:126.9236 },
-  { name:"커피스미스 홍대", area:"홍대", address:"서울 마포구 양화로 168", lat:37.5568, lng:126.9238 },
-  { name:"카페 하프앤하프", area:"홍대", address:"서울 마포구 홍익로 8", lat:37.5557, lng:126.9215 },
-  { name:"온더테이블 홍대", area:"홍대", address:"서울 마포구 와우산로 44", lat:37.5521, lng:126.9233 },
-  { name:"카페 선샤인", area:"홍대", address:"서울 마포구 어울마당로 88", lat:37.5562, lng:126.9235 },
-  { name:"카페 소전서림", area:"홍대", address:"서울 마포구 와우산로 17", lat:37.5528, lng:126.9226 },
-  { name:"브라운핸즈 홍대", area:"홍대", address:"서울 마포구 홍익로 23", lat:37.5563, lng:126.9221 },
-  { name:"카페 달", area:"홍대", address:"서울 마포구 와우산로 82", lat:37.5551, lng:126.9243 },
-  { name:"매뉴팩트커피 홍대", area:"홍대", address:"서울 마포구 양화로 162", lat:37.5566, lng:126.9234 },
-  { name:"카페 에그슬럿 홍대", area:"홍대", address:"서울 마포구 와우산로 51", lat:37.5523, lng:126.9232 },
-  { name:"커피 클럽 홍대", area:"홍대", address:"서울 마포구 홍익로2길 6", lat:37.5559, lng:126.9207 },
-  { name:"카페 베케 홍대", area:"홍대", address:"서울 마포구 와우산로 67", lat:37.5533, lng:126.9238 },
-  { name:"아우어 베이커리 홍대", area:"홍대", address:"서울 마포구 어울마당로 100", lat:37.5564, lng:126.9238 },
-  { name:"카페 트럭스터 홍대", area:"홍대", address:"서울 마포구 홍익로 31", lat:37.5565, lng:126.9224 },
-  { name:"폴바셋 홍대점", area:"홍대", address:"서울 마포구 양화로 174", lat:37.5570, lng:126.9241 },
 
-  // ── 용인 죽전동 ──────────────────────────────────────────
-  { name:"스타벅스 죽전점", area:"죽전동", address:"경기 용인시 수지구 죽전로 144", lat:37.3214, lng:127.1082 },
-  { name:"투썸플레이스 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 148", lat:37.3216, lng:127.1085 },
-  { name:"카페베네 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 536", lat:37.3224, lng:127.1094 },
-  { name:"이디야커피 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 138", lat:37.3210, lng:127.1078 },
-  { name:"폴바셋 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 542", lat:37.3228, lng:127.1098 },
-  { name:"할리스 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 156", lat:37.3222, lng:127.1092 },
-  { name:"커피빈 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 530", lat:37.3220, lng:127.1088 },
-  { name:"탐앤탐스 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 142", lat:37.3212, lng:127.1080 },
-  { name:"드롭탑 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로15번길 8", lat:37.3230, lng:127.1075 },
-  { name:"브레댄코 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 524", lat:37.3218, lng:127.1084 },
-  { name:"카페 봄봄 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로17번길 12", lat:37.3235, lng:127.1080 },
-  { name:"더벤티 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 134", lat:37.3208, lng:127.1076 },
-  { name:"메가커피 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 160", lat:37.3225, lng:127.1095 },
-  { name:"컴포즈커피 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로13번길 6", lat:37.3226, lng:127.1070 },
-  { name:"카페 그라운드 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 548", lat:37.3232, lng:127.1102 },
-  { name:"앤티크 카페 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로19번길 5", lat:37.3240, lng:127.1085 },
-  { name:"카페 나무 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 512", lat:37.3212, lng:127.1078 },
-  { name:"블루밍 카페 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 164", lat:37.3228, lng:127.1097 },
-  { name:"카페 포레스트 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로11번길 14", lat:37.3222, lng:127.1066 },
-  { name:"모던카페 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 554", lat:37.3236, lng:127.1106 },
-  { name:"카페 하루 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 168", lat:37.3231, lng:127.1099 },
-  { name:"달콤커피 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로9번길 9", lat:37.3218, lng:127.1062 },
-  { name:"카페 소소 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 506", lat:37.3209, lng:127.1074 },
-  { name:"빽다방 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 130", lat:37.3205, lng:127.1072 },
-  { name:"카페 루나 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로21번길 7", lat:37.3245, lng:127.1088 },
-  { name:"엔제리너스 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 560", lat:37.3240, lng:127.1110 },
-  { name:"카페 오늘 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 172", lat:37.3234, lng:127.1101 },
-  { name:"카페 힐링 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로7번길 11", lat:37.3214, lng:127.1058 },
-  { name:"카페 온 죽전", area:"죽전동", address:"경기 용인시 수지구 포은대로 518", lat:37.3215, lng:127.1081 },
-  { name:"카페 하늘 죽전", area:"죽전동", address:"경기 용인시 수지구 죽전로 176", lat:37.3237, lng:127.1103 },
 ];
 
 // ============================================================
@@ -790,6 +891,5 @@ function stopConfetti() {
   particles=[];
 }
 </script>
-
 </body>
 </html>
