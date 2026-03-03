@@ -295,6 +295,7 @@
 
   <button class="btn-primary" onclick="startGame()">출발하기 →</button>
   <div id="gps-status" class="sub">📡 GPS 위치 잡는 중...</div>
+  <div id="gps-coords" style="font-size:0.58rem;color:var(--muted);letter-spacing:0.05em;font-family:'Space Mono',monospace;"></div>
 </div>
 
 <!-- ========== GAME ========== -->
@@ -781,6 +782,8 @@ function initGPS() {
         statusEl.textContent = '📍 위치 확인됨';
         statusEl.style.color = 'var(--green)';
       }
+      const coordEl = document.getElementById('gps-coords');
+      if (coordEl) coordEl.textContent = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
     },
     () => {
       if (statusEl) {
@@ -800,6 +803,8 @@ function initGPS() {
         statusEl.textContent = '📍 위치 확인됨';
         statusEl.style.color = 'var(--green)';
       }
+      const coordEl = document.getElementById('gps-coords');
+      if (coordEl) coordEl.textContent = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
     },
     () => {},
     { enableHighAccuracy: true, maximumAge: 0 }
