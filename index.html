@@ -3,70 +3,857 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>카카오 API 테스트</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>데이트 나침반</title>
 <style>
-  body { font-family: monospace; background: #0a0a0f; color: #e8e4dc; padding: 24px; }
-  button { background: #ff3c5f; color: #fff; border: none; padding: 12px 24px; font-size: 1rem; cursor: pointer; margin: 8px 0; border-radius: 4px; }
-  #result { margin-top: 20px; background: #12121a; padding: 16px; border-radius: 8px; white-space: pre-wrap; font-size: 0.8rem; line-height: 1.8; }
-  .ok { color: #4ade80; }
-  .err { color: #ff3c5f; }
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+–bg: #0a0a0f;
+–surface: #12121a;
+–accent: #ff3c5f;
+–gold: #f5c842;
+–text: #e8e4dc;
+–muted: #4a4860;
+–glow: rgba(255,60,95,0.4);
+–green: #4ade80;
+}
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Space Mono’, monospace;
+height: 100dvh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+user-select: none;
+position: relative;
+}
+
+body::before {
+content: ‘’;
+position: fixed; inset: 0;
+background-image:
+linear-gradient(rgba(255,60,95,0.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,60,95,0.04) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none;
+}
+
+body::after {
+content: ‘’;
+position: fixed; inset: 0;
+background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+pointer-events: none;
+}
+
+/* ========== SHARED ========== */
+.screen {
+display: none;
+flex-direction: column;
+align-items: center;
+z-index: 10;
+width: 100%;
+max-width: 380px;
+padding: 28px 24px;
+}
+.screen.active { display: flex; }
+
+.heart-icon { font-size: 2.6rem; animation: heartbeat 1.5s ease-in-out infinite; margin-bottom: 4px; }
+@keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+.title-ko {
+font-family: ‘Nanum Myeongjo’, serif;
+font-size: clamp(2rem, 8vw, 3rem);
+font-weight: 700;
+letter-spacing: -0.02em;
+line-height: 1.15;
+text-align: center;
+margin-bottom: 4px;
+}
+.title-ko span { color: var(–accent); }
+
+.sub { font-size: 0.62rem; color: var(–muted); letter-spacing: 0.18em; text-transform: uppercase; }
+.desc { font-size: 0.73rem; color: var(–muted); max-width: 280px; line-height: 1.9; text-align: center; }
+
+/* ========== BUTTONS ========== */
+.btn-primary {
+background: var(–accent); color: #fff; border: none;
+font-family: ‘Space Mono’, monospace; font-size: 0.9rem; font-weight: 700;
+letter-spacing: 0.12em; padding: 15px; cursor: pointer;
+clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+transition: all 0.2s; text-transform: uppercase; width: 100%;
+}
+.btn-primary:hover, .btn-primary:active { background: #ff1a40; box-shadow: 0 0 24px var(–glow); }
+
+.btn-outline {
+background: transparent; color: var(–accent); border: 1px solid var(–accent);
+font-family: ‘Space Mono’, monospace; font-size: 0.72rem; font-weight: 700;
+letter-spacing: 0.12em; padding: 12px; cursor: pointer;
+clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+transition: all 0.2s; text-transform: uppercase; width: 100%;
+}
+.btn-outline:hover, .btn-outline:active { background: var(–accent); color: #fff; box-shadow: 0 0 20px var(–glow); }
+
+/* ========== START SCREEN ========== */
+#start-screen { gap: 20px; text-align: center; }
+
+.section-label {
+font-size: 0.58rem; color: var(–muted); letter-spacing: 0.2em;
+text-transform: uppercase; text-align: left; width: 100%;
+}
+
+/* Radius selector */
+.radius-wrap { display: flex; gap: 8px; width: 100%; }
+.radius-btn {
+flex: 1; background: var(–surface); border: 1px solid var(–muted);
+color: var(–muted); font-family: ‘Space Mono’, monospace; font-size: 0.68rem;
+letter-spacing: 0.08em; padding: 10px 0; cursor: pointer;
+clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+transition: all 0.15s; text-align: center;
+}
+.radius-btn.active { background: rgba(255,60,95,0.15); border-color: var(–accent); color: var(–accent); }
+
+.options-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+/* ========== GAME SCREEN ========== */
+#game-screen {
+justify-content: space-between;
+height: 100dvh;
+padding: 44px 24px 36px;
+gap: 0;
+}
+
+.top-info { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+.distance-display {
+font-size: clamp(2.8rem, 13vw, 4.5rem);
+font-weight: 700; letter-spacing: -0.03em; line-height: 1;
+}
+.distance-display .unit { font-size: 0.38em; color: var(–muted); letter-spacing: 0.1em; }
+.distance-label { font-size: 0.6rem; color: var(–muted); letter-spacing: 0.2em; text-transform: uppercase; }
+
+.status-dot {
+width: 6px; height: 6px; border-radius: 50%; background: var(–accent);
+display: inline-block; margin-right: 6px;
+animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Compass */
+.compass-wrap {
+position: relative;
+width: min(270px, 72vw); height: min(270px, 72vw);
+display: flex; align-items: center; justify-content: center;
+}
+.compass-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(255,60,95,0.2); }
+.compass-ring::before { content:’’; position:absolute; inset:12px; border-radius:50%; border:1px solid rgba(255,60,95,0.1); }
+.compass-inner { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+#arrow-container { position:absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+.arrow-svg {
+width:58%; height:58%;
+filter: drop-shadow(0 0 14px var(–accent)) drop-shadow(0 0 28px rgba(255,60,95,0.3));
+}
+.center-dot { position:absolute; width:10px; height:10px; background:var(–gold); border-radius:50%; box-shadow:0 0 8px var(–gold); z-index:5; }
+.cardinal { position:absolute; font-size:0.6rem; color:var(–muted); letter-spacing:.1em; }
+.cardinal.n { top:4px; left:50%; transform:translateX(-50%); }
+.cardinal.s { bottom:4px; left:50%; transform:translateX(-50%); }
+.cardinal.e { right:4px; top:50%; transform:translateY(-50%); }
+.cardinal.w { left:4px; top:50%; transform:translateY(-50%); }
+
+/* Bottom controls */
+.bottom-controls { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
+
+#compass-btn {
+background: rgba(255,60,95,0.12); border: 1px solid var(–accent); color: var(–accent);
+font-family: ‘Space Mono’, monospace; font-size: 0.68rem; letter-spacing: 0.1em;
+padding: 12px 24px; cursor: pointer;
+clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+display: none;
+}
+
+.hint-text { font-size:0.6rem; color:var(–muted); letter-spacing:.15em; text-transform:uppercase; display:none; }
+
+/* Test reveal */
+.test-row { display:flex; align-items:center; gap:8px; }
+#test-toggle-btn {
+background: transparent; border: 1px dashed var(–muted); color: var(–muted);
+font-family: ‘Space Mono’, monospace; font-size: 0.58rem; letter-spacing: 0.1em;
+padding: 7px 14px; cursor: pointer;
+clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+transition: all 0.15s; text-transform: uppercase; white-space: nowrap;
+}
+#test-toggle-btn.revealed { border-color: rgba(245,200,66,0.5); color: var(–gold); }
+
+#dest-box {
+display: none;
+font-family: ‘Nanum Myeongjo’, serif;
+font-size: 0.82rem; color: var(–gold);
+text-align: center; line-height: 1.6;
+padding: 8px 14px;
+border: 1px dashed rgba(245,200,66,0.3);
+background: rgba(245,200,66,0.05);
+width: 100%;
+}
+#dest-box .dest-addr { font-family: ‘Space Mono’, monospace; font-size: 0.58rem; color: var(–muted); display:block; margin-top:3px; }
+
+/* ========== 50m ALERT BANNER ========== */
+#near-alert {
+display: none;
+position: fixed; top: 0; left: 0; right: 0;
+background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(74,222,128,0.05));
+border-bottom: 1px solid var(–green);
+z-index: 30;
+padding: 14px 20px;
+flex-direction: column; align-items: center; gap: 10px;
+}
+.near-title { font-size: 0.72rem; color: var(–green); letter-spacing: 0.15em; text-transform: uppercase; }
+.near-title .near-dot { display:inline-block; width:7px; height:7px; background:var(–green); border-radius:50%; margin-right:7px; animation: pulse 1s ease-in-out infinite; }
+
+#near-reveal-btn {
+background: rgba(74,222,128,0.15); border: 1px solid var(–green); color: var(–green);
+font-family: ‘Space Mono’, monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+padding: 9px 20px; cursor: pointer;
+clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+transition: all 0.2s; text-transform: uppercase;
+}
+#near-reveal-btn:hover { background: rgba(74,222,128,0.3); }
+
+#near-name-box {
+display: none;
+font-family: ‘Nanum Myeongjo’, serif;
+font-size: 1.1rem; color: var(–green);
+text-align: center; line-height: 1.6;
+padding: 8px 16px;
+border: 1px solid rgba(74,222,128,0.3);
+background: rgba(74,222,128,0.08);
+width: 100%;
+max-width: 300px;
+}
+
+/* ========== LOADING ========== */
+#loading-overlay {
+display: none; position: fixed; inset: 0;
+background: rgba(10,10,15,0.92); z-index: 50;
+flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+}
+.loader-ring { width:52px; height:52px; border:2px solid var(–muted); border-top-color:var(–accent); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loader-text { font-size:0.68rem; color:var(–muted); letter-spacing:.15em; text-transform:uppercase; }
+
+/* ========== TOAST ========== */
+#toast {
+display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+background: rgba(255,60,95,0.15); border: 1px solid var(–accent); color: var(–accent);
+font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; white-space: nowrap;
+}
+
+/* ========== ARRIVAL SCREEN ========== */
+#arrival-screen { gap: 16px; text-align: center; }
+.arrival-emoji { font-size: 3rem; }
+.arrival-title { font-family:‘Nanum Myeongjo’,serif; font-size:clamp(1.8rem,7vw,2.6rem); font-weight:700; color:var(–gold); text-shadow:0 0 24px rgba(245,200,66,0.4); line-height:1.2; }
+.place-badge { font-size:.58rem; color:var(–accent); letter-spacing:.2em; text-transform:uppercase; border:1px solid var(–accent); padding:5px 14px; clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%); }
+.place-reveal { font-family:‘Nanum Myeongjo’,serif; font-size:clamp(1.4rem,5.5vw,2rem); color:var(–text); line-height:1.3; }
+.place-address { font-size:.63rem; color:var(–muted); max-width:280px; line-height:1.8; }
+.btn-row { display:flex; gap:10px; width:100%; max-width:300px; }
+.btn-row .btn-outline { flex:1; }
+
+#confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:5; }
 </style>
+
 </head>
 <body>
-<h2>카카오 로컬 API 테스트</h2>
-<button onclick="testGPS()">1. GPS 위치 잡기</button>
-<button onclick="testKakao()">2. 카카오 API 호출</button>
-<div id="result">버튼을 순서대로 눌러주세요...</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div id="loading-overlay"><div class="loader-ring"></div><div class="loader-text" id="loader-text">위치 확인 중...</div></div>
+<div id="toast"></div>
+
+<!-- 50m 근접 알림 배너 -->
+
+<div id="near-alert">
+  <div class="near-title"><span class="near-dot"></span>거의 다 왔어요! 10m 이내</div>
+  <button id="near-reveal-btn" onclick="toggleNearName()">☕ 카페 이름 보기</button>
+  <div id="near-name-box"></div>
+</div>
+
+<!-- ========== START ========== -->
+
+<div id="start-screen" class="screen active">
+  <div class="heart-icon">💘</div>
+  <div class="title-ko">몰래<br><span>데이트</span><br>나침반</div>
+  <p class="desc">목적지는 비밀 ✦ 화살표만 믿고 걸어가세요</p>
+
+  <div class="options-wrap">
+    <div class="section-label">📍 탐색 반경</div>
+    <div class="radius-wrap">
+      <button class="radius-btn active" data-r="1000" onclick="selectRadius(this)">1 km</button>
+      <button class="radius-btn" data-r="2000" onclick="selectRadius(this)">2 km</button>
+      <button class="radius-btn" data-r="3000" onclick="selectRadius(this)">3 km</button>
+    </div>
+  </div>
+
+<button class="btn-primary" onclick="startGame()">출발하기 →</button>
+
+  <div id="gps-status" class="sub">📡 GPS 위치 잡는 중...</div>
+  <div id="gps-coords" style="font-size:0.58rem;color:var(--muted);letter-spacing:0.05em;font-family:'Space Mono',monospace;"></div>
+</div>
+
+<!-- ========== GAME ========== -->
+
+<div id="game-screen" class="screen">
+  <div class="top-info">
+    <div class="distance-display">
+      <span id="dist-value">---</span><span class="unit" id="dist-unit"> m</span>
+    </div>
+    <div class="distance-label"><span class="status-dot"></span>목적지까지</div>
+  </div>
+
+  <div class="compass-wrap">
+    <div class="compass-ring"></div>
+    <div class="compass-inner">
+      <span class="cardinal n">N</span>
+      <span class="cardinal s">S</span>
+      <span class="cardinal e">E</span>
+      <span class="cardinal w">W</span>
+      <div id="arrow-container">
+        <svg class="arrow-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="50,8 62,55 50,48 38,55" fill="#ff3c5f"/>
+          <polygon points="50,92 62,55 50,62 38,55" fill="#2a1020"/>
+          <circle cx="50" cy="55" r="6" fill="#ff3c5f" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="center-dot"></div>
+    </div>
+  </div>
+
+  <div class="bottom-controls">
+    <button id="compass-btn" onclick="askCompassPermission()">📱 여기 눌러서 나침반 허용</button>
+    <div class="hint-text" id="hint-text">화살표 방향으로 걸어가세요</div>
+
+```
+<!-- 테스트용 목적지 보기 -->
+<div class="test-row">
+  <button id="test-toggle-btn" onclick="toggleDestination()">🔍 목적지 보기</button>
+</div>
+<div id="dest-box"></div>
+```
+
+  </div>
+</div>
+
+<!-- ========== ARRIVAL ========== -->
+
+<div id="arrival-screen" class="screen">
+  <div class="arrival-emoji">🎉</div>
+  <div class="arrival-title">도착했어요!</div>
+  <div class="place-badge" id="place-type-reveal">카페 ☕</div>
+  <div class="place-reveal" id="place-name-reveal"></div>
+  <div class="place-address" id="place-address-reveal"></div>
+  <div class="btn-row">
+    <button class="btn-outline" onclick="openMaps()">지도 보기</button>
+    <button class="btn-outline" onclick="restartGame()">다시 뽑기</button>
+  </div>
+</div>
 
 <script>
+// ============================================================
+// CAFE DATABASE — 연남동 30곳 + 홍대 30곳
+// ============================================================
+const CAFES = [];
+  { name:"키츠네즈카", area:"연남동", address:"서울 마포구 동교로51길 51", lat:37.569070, lng:126.923553 },
+  { name:"코리코카페 연남점", area:"연남동", address:"서울 마포구 성미산로 165-7", lat:37.565221, lng:126.924673 },
+  { name:"히포 브런치하우스", area:"연남동", address:"서울 마포구 성미산로17길 85", lat:37.565367, lng:126.917203 },
+  { name:"버터앤쉘터 연남점", area:"연남동", address:"서울 마포구 성미산로 170", lat:37.564378, lng:126.924592 },
+  { name:"녹녹", area:"연남동", address:"서울 마포구 성미산로 139", lat:37.563995, lng:126.921936 },
+  { name:"문식빵", area:"연남동", address:"서울 마포구 동교로39길 4-8", lat:37.562737, lng:126.923840 },
+  { name:"모닝캄커피랩 연남점", area:"연남동", address:"서울 마포구 성미산로 192", lat:37.562990, lng:126.926258 },
+  { name:"코이크", area:"연남동", address:"서울 마포구 동교로39길 8", lat:37.562450, lng:126.923797 },
+  { name:"짙은산", area:"연남동", address:"서울 마포구 성미산로29안길 27", lat:37.565639, lng:126.923551 },
+  { name:"롱베이케이션", area:"연남동", address:"서울 마포구 동교로38길 33-10", lat:37.566078, lng:126.924868 },
+  { name:"터틀힙 연남", area:"연남동", address:"서울 마포구 연남로1길 44", lat:37.559973, lng:126.920566 },
+  { name:"코코로카라", area:"연남동", address:"서울 마포구 연남로1길 41", lat:37.559975, lng:126.920874 },
+  { name:"사이드테이블", area:"연남동", address:"서울 마포구 동교로47길 3", lat:37.563434, lng:126.924815 },
+  { name:"잼잼", area:"연남동", address:"서울 마포구 성미산로29길 24", lat:37.565238, lng:126.922350 },
+  { name:"팻어케이크 연남점", area:"연남동", address:"서울 마포구 연희로1길 45", lat:37.561196, lng:126.925891 },
+  { name:"카페 드 래빗", area:"연남동", address:"서울 마포구 동교로29길 10", lat:37.561884, lng:126.923649 },
+  { name:"에브리데이해피벌스데이", area:"연남동", address:"서울 마포구 연희로 33", lat:37.561965, lng:126.926925 },
+  { name:"라헬의 부엌 연남본점", area:"연남동", address:"서울 마포구 동교로38길 5", lat:37.562653, lng:126.924393 },
+  { name:"렌디스도넛 연남점", area:"연남동", address:"서울 마포구 동교로 247", lat:37.562248, lng:126.924290 },
+  { name:"코코리코", area:"연남동", address:"서울 마포구 동교로39길 4", lat:37.562445, lng:126.924037 },
+  { name:"더레어 연남본점", area:"연남동", address:"서울 마포구 동교로 269", lat:37.563865, lng:126.925646 },
+  { name:"스트로베리32 연남본점", area:"연남동", address:"서울 마포구 연남로5길 8", lat:37.562365, lng:126.921349 },
+  { name:"턴다운서비스", area:"연남동", address:"서울 마포구 동교로50길 7", lat:37.563999, lng:126.926522 },
+  { name:"테일러커피 연남점", area:"연남동", address:"서울 마포구 성미산로 189", lat:37.563228, lng:126.926375 },
+  { name:"커피리브레 파란점", area:"연남동", address:"서울 마포구 성미산로29길 17-8", lat:37.564878, lng:126.921924 },
+  { name:"커피 리브레 연남점", area:"연남동", address:"서울 마포구 성미산로32길 20-5", lat:37.563758, lng:126.923909 },
+  { name:"연트럴다방 연남", area:"연남동", address:"서울 마포구 동교로41길 32", lat:37.563949, lng:126.923557 },
+  { name:"민트초코월드", area:"연남동", address:"서울 마포구 성미산로29길 32", lat:37.565507, lng:126.922156 },
+  { name:"하우스 키루", area:"연남동", address:"서울 마포구 성미산로 174", lat:37.556755, lng:126.931082 },
+  { name:"카페 레이어드 연남점", area:"연남동", address:"서울 마포구 성미산로 161-4", lat:37.565128, lng:126.924214 },
+  { name:"Osds 연남", area:"연남동", address:"서울 마포구 성미산로22길 23", lat:37.562176, lng:126.921327 },
+  { name:"미라지커피", area:"연남동", address:"서울 마포구 동교로 262-6", lat:37.562972, lng:126.925331 },
+  { name:"아르떼카페앤살롱", area:"연남동", address:"서울 마포구 동교로51안길 17", lat:37.570391, lng:126.924940 },
+  { name:"피프에스프레소바", area:"연남동", address:"서울 마포구 성미산로29길 5", lat:37.564392, lng:126.922727 },
+  { name:"콩카페 연남점", area:"연남동", address:"서울 마포구 성미산로 161-14", lat:37.565466, lng:126.923739 },
+  { name:"파롤앤랑그", area:"연남동", address:"서울 마포구 성미산로29안길 8", lat:37.565115, lng:126.922833 },
+  { name:"오흐뒤구떼", area:"연남동", address:"서울 마포구 동교로47길 10", lat:37.563603, lng:126.924863 },
+  { name:"낙랑파라커피하우스", area:"연남동", address:"서울 마포구 성미산로 153", lat:37.564667, lng:126.923382 },
+
+  // ── 용인 신봉동 ──────────────────────────────────────────
+  { name:"블랑제리", area:"신봉동", address:"경기 용인시 수지구 성복1로 106", lat:37.318104, lng:127.068302 },
+  { name:"씨투베이커리본점", area:"신봉동", address:"경기 용인시 수지구 성복2로 166", lat:37.318124, lng:127.068415 },
+  { name:"투썸플레이스 용인신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉1로 52-14", lat:37.323652, lng:127.079056 },
+  { name:"바닐라 성복", area:"신봉동", address:"경기 용인시 수지구 성복2로 130", lat:37.316332, lng:127.072221 },
+  { name:"오아시스", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-9", lat:37.329590, lng:127.071287 },
+  { name:"고딕커피", area:"신봉동", address:"경기 용인시 수지구 신봉2로 115-56", lat:37.329775, lng:127.069224 },
+  { name:"마모리", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-32", lat:37.329649, lng:127.071076 },
+  { name:"레빗앤몽키", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-40", lat:37.333008, lng:127.069724 },
+  { name:"카페일분 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉1로 112-1", lat:37.326586, lng:127.072753 },
+  { name:"씨투베이커리 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 2", lat:37.324186, lng:127.078127 },
+  { name:"카페그램16", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-27", lat:37.329640, lng:127.071076 },
+  { name:"앙로베", area:"신봉동", address:"경기 용인시 수지구 신봉1로 68", lat:37.330085, lng:127.069392 },
+  { name:"옐로우코브", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-101", lat:37.329347, lng:127.071295 },
+  { name:"아숲", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 6", lat:37.324194, lng:127.078470 },
+  { name:"카페블라썸", area:"신봉동", address:"경기 용인시 수지구 신봉2로 60", lat:37.404081, lng:127.066132 },
+
+  // ── 용인 죽전동 ──────────────────────────────────────────
+  { name:"쿠로커피로스터리", area:"죽전동", address:"경기 용인시 기흥구 죽전로43번길 15-1", lat:37.321441, lng:127.113024 },
+  { name:"젠젠 보정동카페거리점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 16-10", lat:37.322064, lng:127.110499 },
+  { name:"스테이 어도러블", area:"죽전동", address:"경기 용인시 기흥구 죽전로43번길 15-3", lat:37.321615, lng:127.112766 },
+  { name:"카페 민가", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 11-14", lat:37.322366, lng:127.110051 },
+  { name:"더블유스타일 보정카페거리점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 7-18", lat:37.321586, lng:127.109120 },
+  { name:"카레클린트 더 카페 분당점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-15", lat:37.321999, lng:127.109277 },
+  { name:"시즌드꼬숑", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 19-3", lat:37.322339, lng:127.109913 },
+  { name:"필아웃커피 보정점", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 7-5", lat:37.321466, lng:127.109880 },
+  { name:"휘게커피 로스터리", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 11-11", lat:37.321704, lng:127.109577 },
+  { name:"토텐", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 15-11", lat:37.322014, lng:127.109462 },
+  { name:"루안", area:"죽전동", address:"경기 용인시 기흥구 죽전로15번길 14", lat:37.325360, lng:127.109869 },
+  { name:"구성커피로스터스", area:"죽전동", address:"경기 용인시 기흥구 이현로29번길 81-1", lat:37.301390, lng:127.100661 },
+  { name:"비니비니본점", area:"죽전동", address:"경기 용인시 기흥구 죽전로 46", lat:37.331270, lng:127.114192 },
+  { name:"카페만월경 보정꽃메점", area:"죽전동", address:"경기 용인시 기흥구 보정로 109", lat:37.322371, lng:127.118129 },
+  { name:"카페더치즈케익 죽전점", area:"죽전동", address:"경기 용인시 기흥구 죽전로27번길 4-1", lat:37.321170, lng:127.111936 },
+  { name:"텐퍼센트커피 용인보정점", area:"죽전동", address:"경기 용인시 기흥구 죽전로 49", lat:37.320917, lng:127.114342 },
+  { name:"카페 소락", area:"죽전동", address:"경기 용인시 수지구 정든로6번길 5", lat:37.326944, lng:127.113313 },
+  { name:"시간통로", area:"죽전동", address:"경기 용인시 수지구 정든로 15", lat:37.327780, lng:127.114422 },
+  { name:"커피수다", area:"죽전동", address:"경기 용인시 수지구 대지로 58", lat:37.328355, lng:127.114958 },
+  { name:"SC 티처스커피", area:"죽전동", address:"경기 용인시 수지구 대지로 18", lat:37.327005, lng:127.112009 },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const ARRIVAL_DISTANCE = 15;
+const NEAR_DISTANCE = 10;
+
+let targetPlace = null;
+let userLat = null, userLng = null;
+let deviceHeading = 0;
+let smoothedAngle = 0;
+let currentDisplayAngle = 0;
+let arrowAnimFrame = null;
+let watchId = null;
+let simulInterval = null;
+let arrived = false;
+let nearAlerted = false;
+let selectedRadius = 1000;
+let destVisible = false;
+let nearNameVisible = false;
+let toastT = null;
+
+// ============================================================
+// RADIUS SELECT
+// ============================================================
+function selectRadius(btn) {
+  document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedRadius = parseInt(btn.dataset.r);
+}
+
+// ============================================================
+// KAKAO LOCAL API — 주변 카페 검색
+// ============================================================
 const KAKAO_KEY = '3ddfe235ce5d1c2659b31318737c3101';
-let myLat = null, myLng = null;
 
-function log(msg, ok) {
-  const el = document.getElementById('result');
-  const cls = ok === true ? 'ok' : ok === false ? 'err' : '';
-  el.innerHTML += `<span class="${cls}">${msg}</span>\n`;
-}
-
-function testGPS() {
-  document.getElementById('result').innerHTML = '';
-  log('📡 GPS 요청 중...');
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      myLat = pos.coords.latitude;
-      myLng = pos.coords.longitude;
-      log(`✅ GPS 성공!`, true);
-      log(`위도: ${myLat}`, true);
-      log(`경도: ${myLng}`, true);
-      log(`정확도: ${pos.coords.accuracy}m`, true);
-    },
-    err => log(`❌ GPS 실패: ${err.message}`, false),
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-}
-
-async function testKakao() {
-  if (!myLat) { log('❌ 먼저 GPS를 잡아주세요!', false); return; }
-  log('\n☕ 카카오 API 호출 중...');
+async function fetchNearbyCafes(lat, lng, radius) {
   try {
-    const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=CE7&x=${myLng}&y=${myLat}&radius=1000&sort=distance&size=5`;
+    const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=CE7&x=${lng}&y=${lat}&radius=${radius}&sort=distance&size=15`;
     const res = await fetch(url, {
       headers: { 'Authorization': `KakaoAK ${KAKAO_KEY}` }
     });
     const data = await res.json();
-    if (data.documents && data.documents.length > 0) {
-      log(`✅ 카카오 API 성공! ${data.documents.length}개 카페 발견`, true);
-      data.documents.forEach((d, i) => {
-        log(`  ${i+1}. ${d.place_name} (${d.distance}m)`, true);
-      });
-    } else {
-      log(`⚠️ 응답은 왔지만 카페 없음: ${JSON.stringify(data)}`, false);
-    }
+    if (!data.documents || data.documents.length === 0) return [];
+    return data.documents.map(d => ({
+      name: d.place_name,
+      area: '주변',
+      address: d.road_address_name || d.address_name,
+      lat: parseFloat(d.y),
+      lng: parseFloat(d.x),
+    }));
   } catch(e) {
-    log(`❌ API 호출 실패: ${e.message}`, false);
+    return [];
   }
 }
+
+// ============================================================
+// START
+// ============================================================
+async function startGame() {
+  // 이미 GPS 잡혀있으면 바로 진행, 아니면 새로 요청
+  if (!userLat) {
+    showLoading(true, 'GPS 위치 확인 중...');
+    try {
+      const pos = await getPosition();
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+    } catch(e) {
+      showLoading(false);
+      showToast('📍 GPS 권한을 허용해주세요');
+      return;
+    }
+    showLoading(false);
+  }
+
+  showLoading(true, '주변 카페 검색 중... ☕');
+
+  // 카카오 API로 주변 카페 검색, 실패시 하드코딩 데이터 사용
+  let cafeList = await fetchNearbyCafes(userLat, userLng, selectedRadius);
+  if (cafeList.length === 0) {
+    // 폴백: 하드코딩 데이터
+    cafeList = CAFES.filter(c => haversine(userLat, userLng, c.lat, c.lng) <= selectedRadius);
+  }
+
+  showLoading(false);
+
+  if (cafeList.length === 0) {
+    showToast(`반경 ${selectedRadius/1000}km 내 카페가 없어요. 반경을 늘려보세요!`);
+    return;
+  }
+
+  targetPlace = cafeList[Math.floor(Math.random() * cafeList.length)];
+  nearAlerted = false;
+  nearNameVisible = false;
+  destVisible = false;
+
+  showLoading(false);
+  showScreen('game-screen');
+
+  // Reset UI
+  document.getElementById('near-alert').style.display = 'none';
+  document.getElementById('near-name-box').style.display = 'none';
+  document.getElementById('near-reveal-btn').style.display = 'block';
+  document.getElementById('near-reveal-btn').textContent = '☕ 카페 이름 보기';
+  document.getElementById('dest-box').style.display = 'none';
+  document.getElementById('test-toggle-btn').textContent = '🔍 목적지 보기';
+  document.getElementById('test-toggle-btn').classList.remove('revealed');
+
+  startWatch();
+  requestCompass();
+  updateUI();
+}
+
+// ============================================================
+// GPS
+// ============================================================
+function getPosition() {
+  return new Promise((res, rej) => {
+    if (!navigator.geolocation) { rej(new Error('no-geo')); return; }
+    navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 10000 });
+  });
+}
+
+function startWatch() {
+  if (watchId) navigator.geolocation.clearWatch(watchId);
+  watchId = navigator.geolocation.watchPosition(
+    pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; updateUI(); },
+    () => showToast('GPS 신호가 약해요'),
+    { enableHighAccuracy: true, maximumAge: 1000 }
+  );
+}
+
+// ============================================================
+// COMPASS
+// ============================================================
+function requestCompass() {
+  const listen = () => {
+    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    window.addEventListener('deviceorientation', handleOrientation, true);
+  };
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    document.getElementById('compass-btn').style.display = 'block';
+    document.getElementById('hint-text').style.display = 'none';
+  } else {
+    listen();
+    document.getElementById('compass-btn').style.display = 'none';
+    document.getElementById('hint-text').style.display = 'block';
+  }
+  simulInterval = setInterval(() => { deviceHeading = (deviceHeading + 0.35) % 360; }, 50);
+}
+
+function askCompassPermission() {
+  DeviceOrientationEvent.requestPermission()
+    .then(r => {
+      if (r === 'granted') {
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+        window.addEventListener('deviceorientation', handleOrientation, true);
+        document.getElementById('compass-btn').style.display = 'none';
+        document.getElementById('hint-text').style.display = 'block';
+        if (simulInterval) { clearInterval(simulInterval); simulInterval = null; }
+      } else {
+        showToast('나침반 권한이 거부됐어요 ㅠㅠ');
+      }
+    })
+    .catch(() => showToast('나침반 권한 요청 실패'));
+}
+
+function handleOrientation(e) {
+  let h = null;
+  if (e.webkitCompassHeading != null) h = e.webkitCompassHeading;
+  else if (e.absolute && e.alpha != null) h = (360 - e.alpha) % 360;
+  else if (e.alpha != null) h = (360 - e.alpha) % 360;
+  if (h != null) {
+    let diff = h - deviceHeading;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    deviceHeading = (deviceHeading + diff * 0.2 + 360) % 360;
+  }
+}
+
+// ============================================================
+// MATH
+// ============================================================
+function haversine(a, b, c, d) {
+  const R=6371000, dL=(c-a)*Math.PI/180, dG=(d-b)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function bearing(a, b, c, d) {
+  const dG=(d-b)*Math.PI/180;
+  const y=Math.sin(dG)*Math.cos(c*Math.PI/180);
+  const x=Math.cos(a*Math.PI/180)*Math.sin(c*Math.PI/180)-Math.sin(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.cos(dG);
+  return ((Math.atan2(y,x)*180/Math.PI)+360)%360;
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+function updateUI() {
+  if (!userLat || !targetPlace || arrived) return;
+  const dist = haversine(userLat, userLng, targetPlace.lat, targetPlace.lng);
+
+  document.getElementById('dist-value').textContent = dist < 1000 ? Math.round(dist) : (dist/1000).toFixed(1);
+  document.getElementById('dist-unit').textContent = dist < 1000 ? ' m' : ' km';
+
+  // 50m 근접 알림
+  if (dist <= NEAR_DISTANCE && !nearAlerted && !arrived) {
+    nearAlerted = true;
+    showNearAlert();
+  }
+
+  // 200m 도착
+  if (dist <= ARRIVAL_DISTANCE) showArrival();
+}
+
+// Arrow animation loop
+function startArrowLoop() {
+  if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
+  function loop() {
+    if (!userLat || !targetPlace || arrived) { arrowAnimFrame = requestAnimationFrame(loop); return; }
+    const targetAngle = bearing(userLat, userLng, targetPlace.lat, targetPlace.lng) - deviceHeading;
+    let diff = targetAngle - currentDisplayAngle;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    currentDisplayAngle += diff * 0.12;
+    document.getElementById('arrow-container').style.transform = `rotate(${currentDisplayAngle}deg)`;
+    arrowAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ============================================================
+// 50m NEAR ALERT
+// ============================================================
+function showNearAlert() {
+  const alert = document.getElementById('near-alert');
+  alert.style.display = 'flex';
+  // 진동 (Android 지원)
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+}
+
+function toggleNearName() {
+  nearNameVisible = !nearNameVisible;
+  const box = document.getElementById('near-name-box');
+  const btn = document.getElementById('near-reveal-btn');
+  if (nearNameVisible && targetPlace) {
+    box.innerHTML = `☕ ${targetPlace.name}<br><span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(74,222,128,0.6)">${targetPlace.area} · ${targetPlace.address}</span>`;
+    box.style.display = 'block';
+    btn.textContent = '🙈 숨기기';
+  } else {
+    box.style.display = 'none';
+    btn.textContent = '☕ 카페 이름 보기';
+  }
+}
+
+// ============================================================
+// TEST TOGGLE
+// ============================================================
+function toggleDestination() {
+  destVisible = !destVisible;
+  const box = document.getElementById('dest-box');
+  const btn = document.getElementById('test-toggle-btn');
+  if (destVisible && targetPlace) {
+    box.innerHTML = `📍 ${targetPlace.name}<span class="dest-addr">${targetPlace.area} · ${targetPlace.address}</span>`;
+    box.style.display = 'block';
+    btn.textContent = '🙈 숨기기';
+    btn.classList.add('revealed');
+  } else {
+    box.style.display = 'none';
+    btn.textContent = '🔍 목적지 보기';
+    btn.classList.remove('revealed');
+  }
+}
+
+// ============================================================
+// ARRIVAL
+// ============================================================
+function showArrival() {
+  arrived = true;
+  if (watchId) navigator.geolocation.clearWatch(watchId);
+  if (simulInterval) clearInterval(simulInterval);
+  if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
+  document.getElementById('near-alert').style.display = 'none';
+
+  document.getElementById('place-name-reveal').textContent = targetPlace.name;
+  document.getElementById('place-address-reveal').textContent = targetPlace.area + ' · ' + targetPlace.address;
+
+  showScreen('arrival-screen');
+  launchConfetti();
+}
+
+function openMaps() {
+  if (!targetPlace) return;
+  window.open(`https://maps.google.com/?q=${targetPlace.lat},${targetPlace.lng}`, '_blank');
+}
+
+function restartGame() {
+  arrived = false;
+  nearAlerted = false;
+  stopConfetti();
+  document.getElementById('near-alert').style.display = 'none';
+  if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
+  showScreen('start-screen');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.toggle('active', s.id === id);
+  });
+  if (id === 'game-screen') startArrowLoop();
+}
+
+function showLoading(show, txt) {
+  document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+  if (txt) document.getElementById('loader-text').textContent = txt;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastT) clearTimeout(toastT);
+  toastT = setTimeout(() => t.style.display = 'none', 3200);
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+let confettiAF = null, particles = [];
+
+function launchConfetti() {
+  const cv = document.getElementById('confetti-canvas');
+  const ctx = cv.getContext('2d');
+  cv.width = window.innerWidth; cv.height = window.innerHeight;
+  const colors = ['#ff3c5f','#f5c842','#fff','#ff9500','#ff6b9d'];
+  particles = Array.from({length:130}, () => ({
+    x:Math.random()*cv.width, y:-10,
+    vx:(Math.random()-.5)*3, vy:Math.random()*4+2,
+    sz:Math.random()*8+4, col:colors[Math.floor(Math.random()*colors.length)],
+    rot:Math.random()*360, rs:(Math.random()-.5)*5,
+  }));
+  (function draw() {
+    ctx.clearRect(0,0,cv.width,cv.height);
+    particles.forEach(p=>{
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.col; ctx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);
+      ctx.restore();
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.rs;
+      if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}
+    });
+    confettiAF = requestAnimationFrame(draw);
+  })();
+}
+
+function stopConfetti() {
+  if (confettiAF) cancelAnimationFrame(confettiAF);
+  const cv = document.getElementById('confetti-canvas');
+  cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
+  particles=[];
+}
+
+// ============================================================
+// 앱 시작시 GPS 미리 워밍업
+// ============================================================
+function initGPS() {
+  if (!navigator.geolocation) return;
+  const statusEl = document.getElementById('gps-status');
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      if (statusEl) {
+        statusEl.textContent = '📍 위치 확인됨';
+        statusEl.style.color = 'var(--green)';
+      }
+      const coordEl = document.getElementById('gps-coords');
+      if (coordEl) coordEl.textContent = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+    },
+    () => {
+      if (statusEl) {
+        statusEl.textContent = '⚠️ GPS 권한을 허용해주세요';
+        statusEl.style.color = 'var(--accent)';
+      }
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+
+  // 백그라운드에서 계속 정확도 높이기
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      if (statusEl) {
+        statusEl.textContent = '📍 위치 확인됨';
+        statusEl.style.color = 'var(--green)';
+      }
+      const coordEl = document.getElementById('gps-coords');
+      if (coordEl) coordEl.textContent = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+    },
+    () => {},
+    { enableHighAccuracy: true, maximumAge: 0 }
+  );
+}
+
+window.addEventListener('load', initGPS);
 </script>
 
 </body>
