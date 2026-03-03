@@ -408,7 +408,7 @@ const CAFES = [
   { name:"씨투베이커리 신봉점", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 2", lat:37.324186, lng:127.078127 },
   { name:"카페그램16", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-27", lat:37.329640, lng:127.071076 },
   { name:"앙로베", area:"신봉동", address:"경기 용인시 수지구 신봉1로 68", lat:37.330085, lng:127.069392 },
-  { name:"옐로우코브", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-101", lat:37.330098, lng:127.070326 },
+  { name:"옐로우코브", area:"신봉동", address:"경기 용인시 수지구 신봉2로 94-101", lat:37.329347, lng:127.071295 },
   { name:"아숲", area:"신봉동", address:"경기 용인시 수지구 신봉2로14번길 6", lat:37.324194, lng:127.078470 },
   { name:"카페블라썸", area:"신봉동", address:"경기 용인시 수지구 신봉2로 60", lat:37.404081, lng:127.066132 },
 
@@ -466,6 +466,31 @@ function selectRadius(btn) {
 }
 
 // ============================================================
+// KAKAO LOCAL API — 주변 카페 검색
+// ============================================================
+const KAKAO_KEY = '3ddfe235ce5d1c2659b31318737c3101';
+
+async function fetchNearbyCafes(lat, lng, radius) {
+  try {
+    const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=CE7&x=${lng}&y=${lat}&radius=${radius}&sort=distance&size=15`;
+    const res = await fetch(url, {
+      headers: { 'Authorization': `KakaoAK ${KAKAO_KEY}` }
+    });
+    const data = await res.json();
+    if (!data.documents || data.documents.length === 0) return [];
+    return data.documents.map(d => ({
+      name: d.place_name,
+      area: '주변',
+      address: d.road_address_name || d.address_name,
+      lat: parseFloat(d.y),
+      lng: parseFloat(d.x),
+    }));
+  } catch(e) {
+    return [];
+  }
+}
+
+// ============================================================
 // START
 // ============================================================
 async function startGame() {
@@ -484,16 +509,23 @@ async function startGame() {
     showLoading(false);
   }
 
-  // 선택한 반경 안에 있는 카페 필터
-  const nearby = CAFES.filter(c => haversine(userLat, userLng, c.lat, c.lng) <= selectedRadius);
+  showLoading(true, '주변 카페 검색 중... ☕');
 
-  if (nearby.length === 0) {
-    showLoading(false);
+  // 카카오 API로 주변 카페 검색, 실패시 하드코딩 데이터 사용
+  let cafeList = await fetchNearbyCafes(userLat, userLng, selectedRadius);
+  if (cafeList.length === 0) {
+    // 폴백: 하드코딩 데이터
+    cafeList = CAFES.filter(c => haversine(userLat, userLng, c.lat, c.lng) <= selectedRadius);
+  }
+
+  showLoading(false);
+
+  if (cafeList.length === 0) {
     showToast(`반경 ${selectedRadius/1000}km 내 카페가 없어요. 반경을 늘려보세요!`);
     return;
   }
 
-  targetPlace = nearby[Math.floor(Math.random() * nearby.length)];
+  targetPlace = cafeList[Math.floor(Math.random() * cafeList.length)];
   nearAlerted = false;
   nearNameVisible = false;
   destVisible = false;
