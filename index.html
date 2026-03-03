@@ -292,6 +292,7 @@
     </div>
     <div class="distance-label"><span class="status-dot"></span>목적지까지</div>
     <button id="reset-btn" onclick="restartGame()">↺ 다시 뽑기</button>
+    <div id="debug-info" style="font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;opacity:0;transition:opacity 0.5s;"></div>
   </div>
 
   <div class="compass-wrap">
@@ -414,7 +415,13 @@ async function startGame() {
     return d >= min && d <= max;
   });
 
-  showToast(`전체 ${allCafes.length}개 → 필터후 ${cafeList.length}개`);
+  // 디버그 정보 게임화면에 잠깐 표시
+  const dbg = document.getElementById('debug-info');
+  if (dbg) {
+    dbg.textContent = `전체 ${allCafes.length}개 → 필터후 ${cafeList.length}개`;
+    dbg.style.opacity = '1';
+    setTimeout(() => dbg.style.opacity = '0', 3000);
+  }
 
   if (cafeList.length === 0) {
     showToast(`${min}m~${max/1000}km 내 카페가 없어요. 반경을 늘려보세요!`);
