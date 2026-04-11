@@ -16,6 +16,7 @@
     --muted: #4a4860;
     --glow: rgba(255,60,95,0.4);
     --green: #4ade80;
+    --blue: #60a5fa;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +25,7 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'Space Mono', monospace;
-    height: 100dvh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,13 +45,6 @@
     pointer-events: none;
   }
 
-  body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
-    pointer-events: none;
-  }
-
   .screen {
     display: none;
     flex-direction: column;
@@ -59,20 +53,19 @@
     width: 100%;
     max-width: 380px;
     padding: 28px 24px;
+    gap: 16px;
   }
   .screen.active { display: flex; }
 
-  .heart-icon { font-size: 2.6rem; animation: heartbeat 1.5s ease-in-out infinite; margin-bottom: 4px; }
+  .heart-icon { font-size: 2.4rem; animation: heartbeat 1.5s ease-in-out infinite; }
   @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
 
   .title-ko {
     font-family: 'Nanum Myeongjo', serif;
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(2rem, 8vw, 2.8rem);
     font-weight: 700;
-    letter-spacing: -0.02em;
     line-height: 1.15;
     text-align: center;
-    margin-bottom: 4px;
   }
   .title-ko span { color: var(--accent); }
 
@@ -86,7 +79,16 @@
     clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     transition: all 0.2s; text-transform: uppercase; width: 100%;
   }
-  .btn-primary:active { background: #ff1a40; box-shadow: 0 0 24px var(--glow); }
+  .btn-primary:active { background: #ff1a40; }
+
+  .btn-secondary {
+    background: transparent; color: var(--blue); border: 1px solid var(--blue);
+    font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700;
+    letter-spacing: 0.12em; padding: 15px; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s; text-transform: uppercase; width: 100%;
+  }
+  .btn-secondary:active { background: rgba(96,165,250,0.15); }
 
   .btn-outline {
     background: transparent; color: var(--accent); border: 1px solid var(--accent);
@@ -95,9 +97,6 @@
     clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
     transition: all 0.2s; text-transform: uppercase; width: 100%;
   }
-  .btn-outline:active { background: var(--accent); color: #fff; }
-
-  #start-screen { gap: 20px; text-align: center; }
 
   .section-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; text-align: left; width: 100%; }
 
@@ -111,62 +110,81 @@
   }
   .radius-btn.active { background: rgba(255,60,95,0.15); border-color: var(--accent); color: var(--accent); }
 
-  .options-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .divider {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    font-size: 0.58rem; color: var(--muted); letter-spacing: 0.15em;
+  }
+  .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--muted); opacity: 0.3; }
 
+  .input-wrap { width: 100%; position: relative; }
+  .code-input {
+    width: 100%; background: var(--surface); border: 1px solid var(--muted);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 1.2rem; letter-spacing: 0.3em; padding: 14px 16px;
+    text-align: center; text-transform: uppercase; outline: none;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    transition: border-color 0.2s;
+  }
+  .code-input:focus { border-color: var(--accent); }
+  .code-input::placeholder { color: var(--muted); letter-spacing: 0.2em; font-size: 0.8rem; }
+
+  /* 대기 화면 */
+  #wait-screen { text-align: center; }
+
+  .room-code-display {
+    background: var(--surface); border: 1px solid var(--gold);
+    padding: 20px 32px; text-align: center;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    width: 100%;
+  }
+  .room-code-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.2em; margin-bottom: 8px; }
+  .room-code-value { font-size: 2rem; font-weight: 700; color: var(--gold); letter-spacing: 0.3em; }
+
+  .players-wrap { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+  .player-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
+    padding: 12px 16px;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+  }
+  .player-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .player-dot.me { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .player-dot.other { background: var(--blue); box-shadow: 0 0 6px var(--blue); animation: pulse 1.5s infinite; }
+  .player-name { font-size: 0.72rem; color: var(--text); }
+  .player-badge { margin-left: auto; font-size: 0.52rem; color: var(--muted); letter-spacing: 0.1em; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .waiting-anim { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+  /* 게임 화면 */
   #game-screen {
     justify-content: space-between;
     height: 100dvh;
     padding: 44px 24px 20px;
     gap: 0;
+    max-width: 100%;
   }
 
-  .top-info { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .top-info { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 
   .distance-display {
-    font-size: clamp(2.8rem, 13vw, 4.5rem);
+    font-size: clamp(2.8rem, 13vw, 4rem);
     font-weight: 700; letter-spacing: -0.03em; line-height: 1;
   }
   .distance-display .unit { font-size: 0.38em; color: var(--muted); letter-spacing: 0.1em; }
   .distance-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+  .status-dot { width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;animation:pulse 2s infinite; }
 
-  .status-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-    display: inline-block; margin-right: 6px;
-    animation: pulse 2s ease-in-out infinite;
+  /* 상대방 거리 */
+  .opponent-info {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2);
+    padding: 6px 14px; font-size: 0.62rem; color: var(--blue);
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
   }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-  .compass-wrap {
-    position: relative;
-    width: min(230px, 62vw); height: min(230px, 62vw);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .compass-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(255,60,95,0.2); }
-  .compass-ring::before { content:''; position:absolute; inset:12px; border-radius:50%; border:1px solid rgba(255,60,95,0.1); }
-  .compass-inner { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
-  #arrow-container { position:absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
-  .arrow-svg {
-    width:58%; height:58%;
-    filter: drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(255,60,95,0.3));
-  }
-  .center-dot { position:absolute; width:10px; height:10px; background:var(--gold); border-radius:50%; box-shadow:0 0 8px var(--gold); z-index:5; }
-  .cardinal { position:absolute; font-size:0.6rem; color:var(--muted); letter-spacing:.1em; }
-  .cardinal.n { top:4px; left:50%; transform:translateX(-50%); }
-  .cardinal.s { bottom:4px; left:50%; transform:translateX(-50%); }
-  .cardinal.e { right:4px; top:50%; transform:translateY(-50%); }
-  .cardinal.w { left:4px; top:50%; transform:translateY(-50%); }
-
-  .bottom-controls { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
-
-  #compass-btn {
-    background: rgba(255,60,95,0.12); border: 1px solid var(--accent); color: var(--accent);
-    font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em;
-    padding: 12px 24px; cursor: pointer;
-    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-    display: none;
-  }
-
-  .hint-text { font-size:0.6rem; color:var(--muted); letter-spacing:.15em; text-transform:uppercase; display:none; }
+  .opponent-dot { width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 1.5s infinite; }
 
   #reset-btn {
     background: transparent; border: 1px solid var(--muted); color: var(--muted);
@@ -176,80 +194,106 @@
     transition: all 0.15s; text-transform: uppercase;
   }
   #reset-btn:active { border-color: var(--accent); color: var(--accent); }
-    background: transparent; border: 1px dashed var(--muted); color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em;
-    padding: 7px 14px; cursor: pointer;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-    transition: all 0.15s; text-transform: uppercase;
+
+  .compass-wrap {
+    position: relative;
+    width: min(230px, 62vw); height: min(230px, 62vw);
+    display: flex; align-items: center; justify-content: center;
   }
-  #test-toggle-btn.revealed { border-color: rgba(245,200,66,0.5); color: var(--gold); }
+  .compass-ring { position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,60,95,0.2); }
+  .compass-ring::before { content:'';position:absolute;inset:12px;border-radius:50%;border:1px solid rgba(255,60,95,0.1); }
+  .compass-inner { position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
+  #arrow-container { position:absolute;width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
+  .arrow-svg { width:58%;height:58%;filter:drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(255,60,95,0.3)); }
+  .center-dot { position:absolute;width:10px;height:10px;background:var(--gold);border-radius:50%;box-shadow:0 0 8px var(--gold);z-index:5; }
+  .cardinal { position:absolute;font-size:0.6rem;color:var(--muted);letter-spacing:.1em; }
+  .cardinal.n { top:4px;left:50%;transform:translateX(-50%); }
+  .cardinal.s { bottom:4px;left:50%;transform:translateX(-50%); }
+  .cardinal.e { right:4px;top:50%;transform:translateY(-50%); }
+  .cardinal.w { left:4px;top:50%;transform:translateY(-50%); }
+
+  .bottom-controls { display:flex;flex-direction:column;align-items:center;gap:8px;width:100%; }
+
+  #compass-btn {
+    background:rgba(255,60,95,0.12);border:1px solid var(--accent);color:var(--accent);
+    font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;
+    padding:12px 24px;cursor:pointer;
+    clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+    display:none;
+  }
+  .hint-text { font-size:0.6rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;display:none; }
+
+  #test-toggle-btn {
+    background:transparent;border:1px dashed var(--muted);color:var(--muted);
+    font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;
+    padding:7px 14px;cursor:pointer;
+    clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+    transition:all 0.15s;text-transform:uppercase;
+  }
+  #test-toggle-btn.revealed { border-color:rgba(245,200,66,0.5);color:var(--gold); }
 
   #dest-box {
-    display: none;
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 0.82rem; color: var(--gold);
-    text-align: center; line-height: 1.6;
-    padding: 8px 14px;
-    border: 1px dashed rgba(245,200,66,0.3);
-    background: rgba(245,200,66,0.05);
-    width: 100%;
+    display:none;font-family:'Nanum Myeongjo',serif;
+    font-size:0.82rem;color:var(--gold);text-align:center;line-height:1.6;
+    padding:8px 14px;border:1px dashed rgba(245,200,66,0.3);
+    background:rgba(245,200,66,0.05);width:100%;
   }
+
+  #debug-info { font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;opacity:0;transition:opacity 0.5s; }
 
   #near-alert {
-    display: none;
-    position: fixed; top: 0; left: 0; right: 0;
-    background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(74,222,128,0.05));
-    border-bottom: 1px solid var(--green);
-    z-index: 30;
-    padding: 14px 20px;
-    flex-direction: column; align-items: center; gap: 10px;
+    display:none;position:fixed;top:0;left:0;right:0;
+    background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(74,222,128,0.05));
+    border-bottom:1px solid var(--green);z-index:30;
+    padding:14px 20px;flex-direction:column;align-items:center;gap:10px;
   }
-  .near-title { font-size: 0.72rem; color: var(--green); letter-spacing: 0.15em; text-transform: uppercase; }
-  .near-dot { display:inline-block; width:7px; height:7px; background:var(--green); border-radius:50%; margin-right:7px; animation: pulse 1s ease-in-out infinite; }
-
+  .near-title { font-size:0.72rem;color:var(--green);letter-spacing:0.15em;text-transform:uppercase; }
+  .near-dot { display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:7px;animation:pulse 1s infinite; }
   #near-reveal-btn {
-    background: rgba(74,222,128,0.15); border: 1px solid var(--green); color: var(--green);
-    font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
-    padding: 9px 20px; cursor: pointer;
-    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
-    transition: all 0.2s; text-transform: uppercase;
+    background:rgba(74,222,128,0.15);border:1px solid var(--green);color:var(--green);
+    font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;
+    padding:9px 20px;cursor:pointer;
+    clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);
+    transition:all 0.2s;text-transform:uppercase;
   }
-
   #near-name-box {
-    display: none;
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 1.1rem; color: var(--green);
-    text-align: center; line-height: 1.6;
-    padding: 8px 16px;
-    border: 1px solid rgba(74,222,128,0.3);
-    background: rgba(74,222,128,0.08);
-    width: 100%; max-width: 300px;
+    display:none;font-family:'Nanum Myeongjo',serif;
+    font-size:1.1rem;color:var(--green);text-align:center;line-height:1.6;
+    padding:8px 16px;border:1px solid rgba(74,222,128,0.3);
+    background:rgba(74,222,128,0.08);width:100%;max-width:300px;
   }
 
   #loading-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(10,10,15,0.92); z-index: 50;
-    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    display:none;position:fixed;inset:0;
+    background:rgba(10,10,15,0.92);z-index:50;
+    flex-direction:column;align-items:center;justify-content:center;gap:20px;
   }
-  .loader-ring { width:52px; height:52px; border:2px solid var(--muted); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+  .loader-ring { width:52px;height:52px;border:2px solid var(--muted);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite; }
   @keyframes spin { to{transform:rotate(360deg)} }
-  .loader-text { font-size:0.68rem; color:var(--muted); letter-spacing:.15em; text-transform:uppercase; }
+  .loader-text { font-size:0.68rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase; }
 
   #toast {
-    display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: rgba(255,60,95,0.15); border: 1px solid var(--accent); color: var(--accent);
-    font-size: 0.63rem; letter-spacing: .1em; padding: 10px 20px; z-index: 100; white-space: nowrap;
+    display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:rgba(255,60,95,0.15);border:1px solid var(--accent);color:var(--accent);
+    font-size:0.63rem;letter-spacing:.1em;padding:10px 20px;z-index:100;white-space:nowrap;
   }
 
-  #arrival-screen { gap: 16px; text-align: center; }
-  .arrival-emoji { font-size: 3rem; }
-  .arrival-title { font-family:'Nanum Myeongjo',serif; font-size:clamp(1.8rem,7vw,2.6rem); font-weight:700; color:var(--gold); text-shadow:0 0 24px rgba(245,200,66,0.4); line-height:1.2; }
-  .place-reveal { font-family:'Nanum Myeongjo',serif; font-size:clamp(1.4rem,5.5vw,2rem); color:var(--text); line-height:1.3; }
-  .place-address { font-size:.63rem; color:var(--muted); max-width:280px; line-height:1.8; }
-  .btn-row { display:flex; gap:10px; width:100%; max-width:300px; }
+  /* 도착 화면 */
+  #arrival-screen { gap:16px;text-align:center; }
+  .arrival-emoji { font-size:3rem; }
+  .arrival-title { font-family:'Nanum Myeongjo',serif;font-size:clamp(1.8rem,7vw,2.6rem);font-weight:700;color:var(--gold);line-height:1.2; }
+  .place-reveal { font-family:'Nanum Myeongjo',serif;font-size:clamp(1.4rem,5.5vw,2rem);color:var(--text);line-height:1.3; }
+  .place-address { font-size:.63rem;color:var(--muted);max-width:280px;line-height:1.8; }
+  .winner-badge {
+    font-size:0.72rem;letter-spacing:0.15em;padding:8px 20px;
+    clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+  }
+  .winner-badge.win { background:rgba(74,222,128,0.15);border:1px solid var(--green);color:var(--green); }
+  .winner-badge.lose { background:rgba(96,165,250,0.15);border:1px solid var(--blue);color:var(--blue); }
+  .btn-row { display:flex;gap:10px;width:100%;max-width:300px; }
   .btn-row .btn-outline { flex:1; }
 
-  #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:5; }
+  #confetti-canvas { position:fixed;inset:0;pointer-events:none;z-index:5; }
 </style>
 </head>
 <body>
@@ -264,13 +308,13 @@
   <div id="near-name-box"></div>
 </div>
 
-<!-- START -->
+<!-- ── 시작 화면 ── -->
 <div id="start-screen" class="screen active">
   <div class="heart-icon">💘</div>
   <div class="title-ko">랜덤<br><span>카페</span><br>데이트</div>
   <p class="desc">목적지는 비밀 ✦ 화살표만 믿고 걸어가세요</p>
 
-  <div class="options-wrap">
+  <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
     <div class="section-label">📍 탐색 반경</div>
     <div class="radius-wrap">
       <button class="radius-btn active" data-r="1000" onclick="selectRadius(this)">1 km</button>
@@ -279,20 +323,67 @@
     </div>
   </div>
 
-  <button class="btn-primary" onclick="startGame()">출발하기 →</button>
+  <button class="btn-primary" onclick="startSolo()">혼자 출발하기 →</button>
+
+  <div class="divider">함께 하기</div>
+
+  <button class="btn-primary" onclick="createRoom()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);">🏠 방 만들기</button>
+
+  <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
+    <div class="input-wrap">
+      <input class="code-input" id="room-code-input" type="text" maxlength="6" placeholder="초대 코드 입력" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <button class="btn-secondary" onclick="joinRoom()">참가하기 →</button>
+  </div>
+
   <div id="gps-status" class="sub">📡 GPS 위치 잡는 중...</div>
-  <div id="gps-coords" style="font-size:0.58rem;color:var(--muted);font-family:'Space Mono',monospace;margin-top:-8px;"></div>
+  <div id="gps-coords" style="font-size:0.55rem;color:var(--muted);margin-top:-8px;"></div>
 </div>
 
-<!-- GAME -->
+<!-- ── 대기 화면 ── -->
+<div id="wait-screen" class="screen">
+  <div class="heart-icon">☕</div>
+  <div style="font-family:'Nanum Myeongjo',serif;font-size:1.4rem;font-weight:700;text-align:center;">
+    친구를 기다리는 중
+  </div>
+
+  <div class="room-code-display">
+    <div class="room-code-label">초대 코드</div>
+    <div class="room-code-value" id="display-room-code">------</div>
+  </div>
+
+  <p class="desc">친구에게 코드를 알려주세요<br>둘 다 준비되면 자동으로 시작돼요!</p>
+
+  <div class="players-wrap">
+    <div class="player-row">
+      <div class="player-dot me"></div>
+      <div class="player-name" id="my-name-display">나</div>
+      <div class="player-badge">✓ 준비됨</div>
+    </div>
+    <div class="player-row" id="opponent-row">
+      <div class="player-dot" id="opponent-dot"></div>
+      <div class="player-name" id="opponent-name-display">대기 중...</div>
+      <div class="player-badge" id="opponent-badge"></div>
+    </div>
+  </div>
+
+  <div class="waiting-anim" id="waiting-text">상대방 접속 대기 중...</div>
+  <button class="btn-outline" onclick="cancelRoom()" style="margin-top:8px;">취소</button>
+</div>
+
+<!-- ── 게임 화면 ── -->
 <div id="game-screen" class="screen">
   <div class="top-info">
     <div class="distance-display">
       <span id="dist-value">---</span><span class="unit" id="dist-unit"> m</span>
     </div>
     <div class="distance-label"><span class="status-dot"></span>목적지까지</div>
+    <div class="opponent-info" id="opponent-info" style="display:none;">
+      <div class="opponent-dot"></div>
+      <span id="opponent-dist">상대방 ---m</span>
+    </div>
     <button id="reset-btn" onclick="restartGame()">↺ 다시 뽑기</button>
-    <div id="debug-info" style="font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;opacity:0;transition:opacity 0.5s;"></div>
+    <div id="debug-info"></div>
   </div>
 
   <div class="compass-wrap">
@@ -321,10 +412,11 @@
   </div>
 </div>
 
-<!-- ARRIVAL -->
+<!-- ── 도착 화면 ── -->
 <div id="arrival-screen" class="screen">
-  <div class="arrival-emoji">🎉</div>
-  <div class="arrival-title">도착했어요!</div>
+  <div class="arrival-emoji" id="arrival-emoji">🎉</div>
+  <div class="arrival-title" id="arrival-title">도착했어요!</div>
+  <div id="winner-badge-wrap"></div>
   <div class="place-reveal" id="place-name-reveal"></div>
   <div class="place-address" id="place-address-reveal"></div>
   <div class="btn-row">
@@ -333,11 +425,36 @@
   </div>
 </div>
 
-<script>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update, remove, off } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDGjeO-lEh4HMDDeXwjz8UkDi1TMDPgSg4",
+  authDomain: "random-cafe-date.firebaseapp.com",
+  databaseURL: "https://random-cafe-date-default-rtdb.firebaseio.com",
+  projectId: "random-cafe-date",
+  storageBucket: "random-cafe-date.firebasestorage.app",
+  messagingSenderId: "1091190549903",
+  appId: "1:1091190549903:web:7252ea5315acce7c2d2ffa",
+  measurementId: "G-24K8FLF632"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── 상수 ──
 const KAKAO_KEY = '3ddfe235ce5d1c2659b31318737c3101';
 const ARRIVAL_DISTANCE = 15;
 const NEAR_DISTANCE = 10;
+const RADIUS_CONFIG = {
+  1000: { min: 50,  max: 1000 },
+  2000: { min: 100, max: 2000 },
+  3000: { min: 200, max: 3000 },
+};
 
+// ── 상태 ──
 let targetPlace = null;
 let userLat = null, userLng = null;
 let deviceHeading = 0;
@@ -352,45 +469,184 @@ let destVisible = false;
 let selectedRadius = 1000;
 let toastT = null;
 
-// ── 반경 선택 ──
-const RADIUS_CONFIG = {
-  1000: { min: 50,  max: 1000 },
-  2000: { min: 100, max: 2000 },
-  3000: { min: 200, max: 3000 },
-};
+let roomCode = null;
+let myRole = null; // 'host' or 'guest'
+let myId = Math.random().toString(36).substr(2, 8);
+let isMulti = false;
+let roomRef = null;
+let roomListener = null;
+let opponentArrived = false;
 
-function selectRadius(btn) {
+// ── 반경 선택 ──
+window.selectRadius = function(btn) {
   document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedRadius = parseInt(btn.dataset.r);
+};
+
+// ── 방 코드 생성 ──
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// ── 카카오 주변 카페 검색 ──
-async function fetchNearbyCafes(lat, lng, radius) {
-  try {
-    let allDocs = [];
-    for (let page = 1; page <= 3; page++) {
-      const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=CE7&x=${lng}&y=${lat}&radius=${radius}&sort=distance&size=15&page=${page}`;
-      const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${KAKAO_KEY}` } });
-      const data = await res.json();
-      if (!data.documents || data.documents.length === 0) break;
-      allDocs = allDocs.concat(data.documents);
-      if (data.meta.is_end) break;
-    }
-    return allDocs.map(d => ({
-      name: d.place_name,
-      area: '주변',
-      address: d.road_address_name || d.address_name,
-      lat: parseFloat(d.y),
-      lng: parseFloat(d.x),
-    }));
-  } catch(e) {
-    return [];
+// ── 방 만들기 ──
+window.createRoom = async function() {
+  if (!userLat) {
+    showToast('📍 GPS를 먼저 잡아주세요');
+    return;
   }
+  showLoading(true, '방 만드는 중...');
+  roomCode = generateCode();
+  myRole = 'host';
+  isMulti = true;
+
+  roomRef = ref(db, `rooms/${roomCode}`);
+  await set(roomRef, {
+    host: { id: myId, lat: userLat, lng: userLng, ready: true, arrived: false },
+    guest: null,
+    status: 'waiting',
+    radius: selectedRadius,
+    createdAt: Date.now(),
+  });
+
+  showLoading(false);
+  document.getElementById('display-room-code').textContent = roomCode;
+  showScreen('wait-screen');
+  listenRoom();
+};
+
+// ── 방 참가 ──
+window.joinRoom = async function() {
+  const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+  if (code.length !== 6) { showToast('6자리 코드를 입력해주세요'); return; }
+  if (!userLat) { showToast('📍 GPS를 먼저 잡아주세요'); return; }
+
+  showLoading(true, '방 찾는 중...');
+  roomCode = code;
+  myRole = 'guest';
+  isMulti = true;
+
+  roomRef = ref(db, `rooms/${roomCode}`);
+  const snap = await get(roomRef);
+  if (!snap.exists()) {
+    showLoading(false);
+    showToast('방을 찾을 수 없어요 😢');
+    return;
+  }
+  const data = snap.val();
+  if (data.status !== 'waiting') {
+    showLoading(false);
+    showToast('이미 시작된 방이에요');
+    return;
+  }
+
+  selectedRadius = data.radius;
+  await update(roomRef, {
+    guest: { id: myId, lat: userLat, lng: userLng, ready: true, arrived: false },
+    status: 'ready',
+  });
+
+  showLoading(false);
+  document.getElementById('display-room-code').textContent = roomCode;
+  showScreen('wait-screen');
+  listenRoom();
+};
+
+// ── 방 취소 ──
+window.cancelRoom = async function() {
+  if (roomRef) {
+    off(roomRef);
+    if (myRole === 'host') await remove(roomRef);
+  }
+  roomCode = null; myRole = null; isMulti = false; roomRef = null;
+  showScreen('start-screen');
+};
+
+// ── 방 상태 리스닝 ──
+function listenRoom() {
+  if (roomListener) off(roomRef);
+  roomListener = onValue(roomRef, async snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+
+    // 대기 화면 - 상대방 접속 표시
+    if (document.getElementById('wait-screen').classList.contains('active')) {
+      const opponent = myRole === 'host' ? data.guest : data.host;
+      if (opponent) {
+        document.getElementById('opponent-dot').className = 'player-dot other';
+        document.getElementById('opponent-name-display').textContent = myRole === 'host' ? '게스트' : '방장';
+        document.getElementById('opponent-badge').textContent = '✓ 준비됨';
+        document.getElementById('waiting-text').textContent = '🎉 모두 준비됐어요! 출발합니다...';
+      }
+
+      // 둘 다 준비되면 게임 시작
+      if (data.status === 'ready' && data.host && data.guest) {
+        setTimeout(() => startMultiGame(data), 1500);
+      }
+    }
+
+    // 게임 중 - 상대방 위치 업데이트
+    if (document.getElementById('game-screen').classList.contains('active')) {
+      const opponent = myRole === 'host' ? data.guest : data.host;
+      if (opponent && targetPlace) {
+        const opDist = haversine(opponent.lat, opponent.lng, targetPlace.lat, targetPlace.lng);
+        document.getElementById('opponent-dist').textContent = `상대방 ${opDist < 1000 ? Math.round(opDist)+'m' : (opDist/1000).toFixed(1)+'km'}`;
+        document.getElementById('opponent-info').style.display = 'flex';
+      }
+
+      // 상대방 도착
+      if (opponent && opponent.arrived && !opponentArrived) {
+        opponentArrived = true;
+        showToast('😮 상대방이 먼저 도착했어요!');
+      }
+    }
+  });
 }
 
-// ── 게임 시작 ──
-async function startGame() {
+// ── 멀티 게임 시작 ──
+async function startMultiGame(data) {
+  // 호스트가 카페 선택
+  let cafe = null;
+  if (myRole === 'host') {
+    showLoading(true, '카페 검색 중... ☕');
+    const allCafes = await fetchNearbyCafes(userLat, userLng, selectedRadius);
+    showLoading(false);
+    const { min, max } = RADIUS_CONFIG[selectedRadius];
+    const filtered = allCafes.filter(c => {
+      const d = haversine(userLat, userLng, c.lat, c.lng);
+      return d >= min && d <= max;
+    });
+    if (filtered.length === 0) {
+      showToast('주변에 카페가 없어요 ㅠㅠ');
+      return;
+    }
+    cafe = filtered[Math.floor(Math.random() * filtered.length)];
+    await update(roomRef, { targetCafe: cafe, status: 'playing' });
+    targetPlace = cafe;
+  } else {
+    // 게스트는 호스트가 선택한 카페 사용
+    showLoading(true, '카페 정보 불러오는 중...');
+    let tries = 0;
+    while (!cafe && tries < 20) {
+      const snap = await get(roomRef);
+      const d = snap.val();
+      if (d.targetCafe) { cafe = d.targetCafe; break; }
+      await new Promise(r => setTimeout(r, 500));
+      tries++;
+    }
+    showLoading(false);
+    if (!cafe) { showToast('카페 정보를 못 받았어요 ㅠㅠ'); return; }
+    targetPlace = cafe;
+  }
+
+  opponentArrived = false;
+  startGameUI();
+}
+
+// ── 혼자 시작 ──
+window.startSolo = async function() {
+  isMulti = false;
   if (!userLat) {
     showLoading(true, 'GPS 위치 확인 중...');
     try {
@@ -415,7 +671,6 @@ async function startGame() {
     return d >= min && d <= max;
   });
 
-  // 디버그 정보 게임화면에 잠깐 표시
   const dbg = document.getElementById('debug-info');
   if (dbg) {
     dbg.textContent = `전체 ${allCafes.length}개 → 필터후 ${cafeList.length}개`;
@@ -429,6 +684,11 @@ async function startGame() {
   }
 
   targetPlace = cafeList[Math.floor(Math.random() * cafeList.length)];
+  startGameUI();
+};
+
+// ── 게임 UI 시작 ──
+function startGameUI() {
   arrived = false;
   nearAlerted = false;
   nearNameVisible = false;
@@ -440,11 +700,34 @@ async function startGame() {
   document.getElementById('dest-box').style.display = 'none';
   document.getElementById('test-toggle-btn').textContent = '🔍 목적지 보기';
   document.getElementById('test-toggle-btn').classList.remove('revealed');
+  document.getElementById('opponent-info').style.display = isMulti ? 'flex' : 'none';
 
   showScreen('game-screen');
   startWatch();
   requestCompass();
   updateUI();
+}
+
+// ── 카카오 API ──
+async function fetchNearbyCafes(lat, lng, radius) {
+  try {
+    let allDocs = [];
+    for (let page = 1; page <= 3; page++) {
+      const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=CE7&x=${lng}&y=${lat}&radius=${radius}&sort=distance&size=15&page=${page}`;
+      const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${KAKAO_KEY}` } });
+      const data = await res.json();
+      if (!data.documents || data.documents.length === 0) break;
+      allDocs = allDocs.concat(data.documents);
+      if (data.meta.is_end) break;
+    }
+    return allDocs.map(d => ({
+      name: d.place_name,
+      area: '주변',
+      address: d.road_address_name || d.address_name,
+      lat: parseFloat(d.y),
+      lng: parseFloat(d.x),
+    }));
+  } catch(e) { return []; }
 }
 
 // ── GPS ──
@@ -458,7 +741,16 @@ function getPosition() {
 function startWatch() {
   if (watchId) navigator.geolocation.clearWatch(watchId);
   watchId = navigator.geolocation.watchPosition(
-    pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; updateUI(); },
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      updateUI();
+      // 멀티일 때 내 위치 Firebase에 업데이트
+      if (isMulti && roomRef) {
+        const myKey = myRole === 'host' ? 'host' : 'guest';
+        update(ref(db, `rooms/${roomCode}/${myKey}`), { lat: userLat, lng: userLng });
+      }
+    },
     () => showToast('GPS 신호가 약해요'),
     { enableHighAccuracy: true, maximumAge: 0 }
   );
@@ -480,7 +772,7 @@ function requestCompass() {
   simulInterval = setInterval(() => { deviceHeading = (deviceHeading + 0.35) % 360; }, 50);
 }
 
-function askCompassPermission() {
+window.askCompassPermission = function() {
   DeviceOrientationEvent.requestPermission()
     .then(r => {
       if (r === 'granted') {
@@ -494,7 +786,7 @@ function askCompassPermission() {
       }
     })
     .catch(() => showToast('나침반 권한 요청 실패'));
-}
+};
 
 function handleOrientation(e) {
   let h = null;
@@ -512,20 +804,19 @@ function handleOrientation(e) {
 // ── 수학 ──
 function haversine(a, b, c, d) {
   const R = 6371000;
-  const dL = (c - a) * Math.PI / 180;
-  const dG = (d - b) * Math.PI / 180;
-  const x = Math.sin(dL/2)**2 + Math.cos(a*Math.PI/180) * Math.cos(c*Math.PI/180) * Math.sin(dG/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+  const dL = (c-a)*Math.PI/180, dG = (d-b)*Math.PI/180;
+  const x = Math.sin(dL/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
 }
 
 function bearing(a, b, c, d) {
-  const dG = (d - b) * Math.PI / 180;
-  const y = Math.sin(dG) * Math.cos(c * Math.PI / 180);
-  const x = Math.cos(a*Math.PI/180) * Math.sin(c*Math.PI/180) - Math.sin(a*Math.PI/180) * Math.cos(c*Math.PI/180) * Math.cos(dG);
-  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+  const dG = (d-b)*Math.PI/180;
+  const y = Math.sin(dG)*Math.cos(c*Math.PI/180);
+  const x = Math.cos(a*Math.PI/180)*Math.sin(c*Math.PI/180) - Math.sin(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.cos(dG);
+  return ((Math.atan2(y,x)*180/Math.PI)+360)%360;
 }
 
-// ── UI 업데이트 ──
+// ── UI ──
 function updateUI() {
   if (!userLat || !targetPlace || arrived) return;
   const dist = haversine(userLat, userLng, targetPlace.lat, targetPlace.lng);
@@ -550,13 +841,12 @@ function startArrowLoop() {
   loop();
 }
 
-// ── 근접 알림 ──
 function showNearAlert() {
   document.getElementById('near-alert').style.display = 'flex';
   if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
 }
 
-function toggleNearName() {
+window.toggleNearName = function() {
   nearNameVisible = !nearNameVisible;
   const box = document.getElementById('near-name-box');
   const btn = document.getElementById('near-reveal-btn');
@@ -568,10 +858,9 @@ function toggleNearName() {
     box.style.display = 'none';
     btn.textContent = '☕ 카페 이름 보기';
   }
-}
+};
 
-// ── 테스트 목적지 보기 ──
-function toggleDestination() {
+window.toggleDestination = function() {
   destVisible = !destVisible;
   const box = document.getElementById('dest-box');
   const btn = document.getElementById('test-toggle-btn');
@@ -585,36 +874,56 @@ function toggleDestination() {
     btn.textContent = '🔍 목적지 보기';
     btn.classList.remove('revealed');
   }
-}
+};
 
-// ── 도착 ──
 function showArrival() {
   arrived = true;
   if (watchId) navigator.geolocation.clearWatch(watchId);
   if (simulInterval) clearInterval(simulInterval);
   if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
   document.getElementById('near-alert').style.display = 'none';
+
+  // 멀티일 때 Firebase에 도착 알림
+  if (isMulti && roomRef) {
+    const myKey = myRole === 'host' ? 'host' : 'guest';
+    update(ref(db, `rooms/${roomCode}/${myKey}`), { arrived: true });
+  }
+
   document.getElementById('place-name-reveal').textContent = targetPlace.name;
   document.getElementById('place-address-reveal').textContent = targetPlace.address;
+
+  const badgeWrap = document.getElementById('winner-badge-wrap');
+  if (isMulti) {
+    if (!opponentArrived) {
+      badgeWrap.innerHTML = '<div class="winner-badge win">🏆 내가 먼저 도착!</div>';
+    } else {
+      badgeWrap.innerHTML = '<div class="winner-badge lose">💙 상대방이 먼저 도착했어요</div>';
+    }
+  } else {
+    badgeWrap.innerHTML = '';
+  }
+
   showScreen('arrival-screen');
   launchConfetti();
 }
 
-function openMaps() {
+window.openMaps = function() {
   if (!targetPlace) return;
   window.open(`https://maps.google.com/?q=${targetPlace.lat},${targetPlace.lng}`, '_blank');
-}
+};
 
-function restartGame() {
+window.restartGame = function() {
   arrived = false;
   nearAlerted = false;
+  opponentArrived = false;
   stopConfetti();
   document.getElementById('near-alert').style.display = 'none';
   if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
+  if (isMulti && roomRef) { off(roomRef); remove(roomRef); }
+  roomCode = null; myRole = null; isMulti = false; roomRef = null;
   showScreen('start-screen');
-}
+};
 
-// ── 화면 전환 ──
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   if (id === 'game-screen') startArrowLoop();
@@ -632,7 +941,7 @@ function showToast(msg) {
   toastT = setTimeout(() => t.style.display = 'none', 3200);
 }
 
-// ── 앱 시작시 GPS 미리 워밍업 ──
+// ── GPS 워밍업 ──
 function initGPS() {
   if (!navigator.geolocation) return;
   const statusEl = document.getElementById('gps-status');
