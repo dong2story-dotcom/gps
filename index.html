@@ -295,6 +295,68 @@
 
   #confetti-canvas { position:fixed;inset:0;pointer-events:none;z-index:5; }
 
+  /* 지도 화면 */
+  #map-screen {
+    padding: 0; max-width: 100%; width: 100%;
+    height: 100dvh; position: relative;
+  }
+  #kakao-map {
+    width: 100%; height: 100%;
+  }
+  .map-overlay {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 52px 16px 12px;
+    background: linear-gradient(to bottom, rgba(10,10,15,0.95) 60%, transparent);
+    z-index: 10; display: flex; flex-direction: column; gap: 10px;
+  }
+  .map-title { font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:var(--text); text-align:center; }
+  .map-desc { font-size:0.6rem; color:var(--muted); letter-spacing:0.12em; text-align:center; }
+  .map-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 16px; z-index: 10;
+    background: linear-gradient(to top, rgba(10,10,15,0.98) 70%, transparent);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  #map-selected-info {
+    display: none; background: var(--surface);
+    border: 1px solid var(--accent); padding: 12px 16px;
+    font-size: 0.72rem; line-height: 1.6;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  #map-selected-info .place-nm { color: var(--accent); font-weight:700; }
+  #map-selected-info .place-addr { color: var(--muted); font-size:0.62rem; }
+  .map-btn-row { display: flex; gap: 8px; }
+  .map-btn-row button { flex:1; }
+  #map-confirm-btn {
+    display: none;
+  }
+  .map-marker-pin {
+    position: absolute; transform: translate(-50%, -100%);
+    font-size: 2rem; z-index: 20; pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    animation: bounce 0.3s ease;
+  }
+  @keyframes bounce { 0%{transform:translate(-50%,-80%)} 100%{transform:translate(-50%,-100%)} }
+  .map-search-wrap {
+    display: flex; gap: 8px;
+  }
+  .map-search-input {
+    flex:1; background: var(--surface); border: 1px solid var(--muted);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 0.72rem; padding: 10px 12px; outline: none;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    user-select: text;
+  }
+  .map-search-input:focus { border-color: var(--accent); }
+  .map-search-btn {
+    background: var(--surface); border: 1px solid var(--muted); color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.62rem; padding: 10px 14px; cursor: pointer;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    white-space: nowrap;
+  }
+  .map-search-btn:active { border-color: var(--accent); color: var(--accent); }
+
+
   /* 닉네임 화면 */
   #nickname-screen { gap: 20px; text-align: center; }
 
@@ -426,11 +488,16 @@
     </div>
   </div>
 
-  <button class="btn-primary" onclick="startSolo()">혼자 출발하기 →</button>
+  <button class="btn-primary" onclick="startSolo()">🎲 랜덤 카페로 출발</button>
+
+  <div class="divider">또는</div>
+
+  <button class="btn-primary" onclick="openMapPicker()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);">🗺️ 지도에서 목적지 지정</button>
 
   <div class="divider">함께 하기</div>
 
-  <button class="btn-primary" onclick="createRoom()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);">🏠 방 만들기</button>
+  <button class="btn-primary" onclick="createRoom()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);">🎲 랜덤 카페로 방 만들기</button>
+  <button class="btn-primary" onclick="createRoomWithMap()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);">🗺️ 지도로 목적지 지정 후 방 만들기</button>
 
   <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
     <div class="input-wrap">
@@ -441,6 +508,29 @@
 
   <div id="gps-status" class="sub">📡 GPS 위치 잡는 중...</div>
   <div id="gps-coords" style="font-size:0.55rem;color:var(--muted);margin-top:-8px;"></div>
+</div>
+
+<!-- ── 지도 목적지 설정 화면 ── -->
+<div id="map-screen" class="screen">
+  <div class="map-overlay">
+    <div class="map-title">📍 목적지 설정</div>
+    <div class="map-desc">지도를 클릭하거나 카페를 검색해서 목적지를 선택하세요</div>
+    <div class="map-search-wrap">
+      <input class="map-search-input" id="map-search-input" type="text" placeholder="카페 이름 검색..." onkeydown="if(event.key==='Enter')searchPlace()">
+      <button class="map-search-btn" onclick="searchPlace()">검색</button>
+    </div>
+  </div>
+  <div id="kakao-map"></div>
+  <div class="map-bottom">
+    <div id="map-selected-info">
+      <div class="place-nm" id="map-place-name">-</div>
+      <div class="place-addr" id="map-place-addr">-</div>
+    </div>
+    <div class="map-btn-row">
+      <button class="btn-outline" onclick="showScreen('start-screen')">← 취소</button>
+      <button class="btn-primary" id="map-confirm-btn" onclick="confirmMapPlace()">이 곳으로 출발 →</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── 대기 화면 ── -->
@@ -545,6 +635,9 @@
   💬
   <div id="chat-badge"></div>
 </button>
+
+<!-- Kakao Maps SDK -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3ddfe235ce5d1c2659b31318737c3101&libraries=services"></script>
 
 <!-- Firebase SDK -->
 <script type="module">
@@ -678,8 +771,132 @@ function addSystemMsg(text) {
   set(ref(db, `rooms/${roomCode}/chat/${Date.now()}_system`), { id: 'system', text, ts: Date.now() });
 }
 
-// ── 반경 선택 ──
-window.selectRadius = function(btn) {
+// ── 지도 목적지 설정 ──
+let kakaoMap = null;
+let selectedMapPlace = null;
+let mapMarker = null;
+let mapAfterFn = null; // 지도에서 선택 후 실행할 함수
+
+window.openMapPicker = function(afterFn) {
+  mapAfterFn = afterFn || null;
+  selectedMapPlace = null;
+  document.getElementById('map-selected-info').style.display = 'none';
+  document.getElementById('map-confirm-btn').style.display = 'none';
+  showScreen('map-screen');
+
+  // 지도 초기화 (처음 한 번만)
+  setTimeout(() => {
+    if (!kakaoMap) {
+      const container = document.getElementById('kakao-map');
+      const options = {
+        center: new kakao.maps.LatLng(userLat || 37.5665, userLng || 126.9780),
+        level: 4,
+      };
+      kakaoMap = new kakao.maps.Map(container, options);
+
+      // 지도 클릭 이벤트
+      kakao.maps.event.addListener(kakaoMap, 'click', e => {
+        const lat = e.latLng.getLat();
+        const lng = e.latLng.getLng();
+        // 역지오코딩으로 주소 찾기
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.coord2Address(lng, lat, (result, status) => {
+          if (status === kakao.maps.services.Status.OK) {
+            const addr = result[0].road_address
+              ? result[0].road_address.address_name
+              : result[0].address.address_name;
+            setMapPlace({ name: '선택한 위치', address: addr, lat, lng });
+          } else {
+            setMapPlace({ name: '선택한 위치', address: '주소 정보 없음', lat, lng });
+          }
+        });
+      });
+    } else {
+      // 이미 만들어진 지도면 현재 위치로 이동
+      if (userLat) kakaoMap.setCenter(new kakao.maps.LatLng(userLat, userLng));
+    }
+  }, 100);
+};
+
+function setMapPlace(place) {
+  selectedMapPlace = place;
+  // 마커 표시
+  if (mapMarker) mapMarker.setMap(null);
+  mapMarker = new kakao.maps.Marker({
+    position: new kakao.maps.LatLng(place.lat, place.lng),
+    map: kakaoMap,
+  });
+  kakaoMap.panTo(new kakao.maps.LatLng(place.lat, place.lng));
+  // 정보 표시
+  document.getElementById('map-place-name').textContent = place.name;
+  document.getElementById('map-place-addr').textContent = place.address;
+  document.getElementById('map-selected-info').style.display = 'block';
+  document.getElementById('map-confirm-btn').style.display = 'block';
+}
+
+window.searchPlace = function() {
+  const keyword = document.getElementById('map-search-input').value.trim();
+  if (!keyword) return;
+  const ps = new kakao.maps.services.Places();
+  ps.keywordSearch(keyword, (data, status) => {
+    if (status !== kakao.maps.services.Status.OK || data.length === 0) {
+      showToast('검색 결과가 없어요');
+      return;
+    }
+    const p = data[0];
+    setMapPlace({
+      name: p.place_name,
+      address: p.road_address_name || p.address_name,
+      lat: parseFloat(p.y),
+      lng: parseFloat(p.x),
+    });
+  }, { location: kakaoMap ? kakaoMap.getCenter() : null });
+};
+
+window.confirmMapPlace = async function() {
+  if (!selectedMapPlace) return;
+  targetPlace = selectedMapPlace;
+
+  if (mapAfterFn) {
+    // 방 만들기에서 왔으면 방 만들기로
+    mapAfterFn();
+  } else {
+    // 혼자 출발
+    startGameUI();
+  }
+};
+
+// 지도로 방 만들기
+window.createRoomWithMap = async function() {
+  askNickname(() => {
+    openMapPicker(async () => {
+      if (!userLat) { showToast('📍 GPS를 먼저 잡아주세요'); return; }
+      showLoading(true, '방 만드는 중...');
+      roomCode = generateCode();
+      myRole = 'host';
+      isMulti = true;
+
+      roomRef = ref(db, `rooms/${roomCode}`);
+      await set(roomRef, {
+        host: { id: myId, nickname: myNickname, lat: userLat, lng: userLng, ready: true, arrived: false },
+        guest: null,
+        status: 'waiting',
+        radius: selectedRadius,
+        targetCafe: targetPlace, // 미리 목적지 저장
+        createdAt: Date.now(),
+      });
+
+      showLoading(false);
+      document.getElementById('display-room-code').textContent = roomCode;
+      document.getElementById('my-name-display').textContent = myNickname;
+      showScreen('wait-screen');
+      listenRoom();
+      listenChat();
+      addSystemMsg(`${myNickname}님이 방을 만들었어요 🏠`);
+      addSystemMsg(`목적지: ${targetPlace.name} 📍`);
+    });
+  });
+};
   document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedRadius = parseInt(btn.dataset.r);
@@ -814,24 +1031,30 @@ function listenRoom() {
 
 // ── 멀티 게임 시작 ──
 async function startMultiGame(data) {
-  // 호스트가 카페 선택
   let cafe = null;
   if (myRole === 'host') {
-    showLoading(true, '카페 검색 중... ☕');
-    const allCafes = await fetchNearbyCafes(userLat, userLng, selectedRadius);
-    showLoading(false);
-    const { min, max } = RADIUS_CONFIG[selectedRadius];
-    const filtered = allCafes.filter(c => {
-      const d = haversine(userLat, userLng, c.lat, c.lng);
-      return d >= min && d <= max;
-    });
-    if (filtered.length === 0) {
-      showToast('주변에 카페가 없어요 ㅠㅠ');
-      return;
+    // 이미 지도로 목적지 설정했으면 그걸 사용
+    if (targetPlace) {
+      cafe = targetPlace;
+      await update(roomRef, { targetCafe: cafe, status: 'playing' });
+    } else if (data.targetCafe) {
+      cafe = data.targetCafe;
+      targetPlace = cafe;
+      await update(roomRef, { status: 'playing' });
+    } else {
+      showLoading(true, '카페 검색 중... ☕');
+      const allCafes = await fetchNearbyCafes(userLat, userLng, selectedRadius);
+      showLoading(false);
+      const { min, max } = RADIUS_CONFIG[selectedRadius];
+      const filtered = allCafes.filter(c => {
+        const d = haversine(userLat, userLng, c.lat, c.lng);
+        return d >= min && d <= max;
+      });
+      if (filtered.length === 0) { showToast('주변에 카페가 없어요 ㅠㅠ'); return; }
+      cafe = filtered[Math.floor(Math.random() * filtered.length)];
+      await update(roomRef, { targetCafe: cafe, status: 'playing' });
+      targetPlace = cafe;
     }
-    cafe = filtered[Math.floor(Math.random() * filtered.length)];
-    await update(roomRef, { targetCafe: cafe, status: 'playing' });
-    targetPlace = cafe;
   } else {
     // 게스트는 호스트가 선택한 카페 사용
     showLoading(true, '카페 정보 불러오는 중...');
