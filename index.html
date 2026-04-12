@@ -637,7 +637,7 @@
 </button>
 
 <!-- Kakao Maps SDK -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3ddfe235ce5d1c2659b31318737c3101&libraries=services"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c5b77630e4dee2d04da82e91d4814850&libraries=services"></script>
 
 <!-- Firebase SDK -->
 <script type="module">
@@ -897,6 +897,9 @@ window.createRoomWithMap = async function() {
     });
   });
 };
+
+// ── 반경 선택 ──
+window.selectRadius = function(btn) {
   document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedRadius = parseInt(btn.dataset.r);
