@@ -162,9 +162,10 @@
   #game-screen {
     justify-content: space-between;
     height: 100dvh;
-    padding: 44px 24px 20px;
+    padding: 90px 24px 20px;
     gap: 0;
     max-width: 100%;
+    position: relative;
   }
 
   .top-info { display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -292,6 +293,68 @@
   .winner-badge.lose { background:rgba(96,165,250,0.15);border:1px solid var(--blue);color:var(--blue); }
   .btn-row { display:flex;gap:10px;width:100%;max-width:300px; }
   .btn-row .btn-outline { flex:1; }
+
+  /* 뷰 모드 탭 */
+  #view-mode-bar {
+    position: absolute; top: 48px; left: 50%; transform: translateX(-50%);
+    display: none; gap: 4px; z-index: 20;
+    background: rgba(10,10,15,0.8); padding: 4px; border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .view-btn {
+    background: transparent; border: none; color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.58rem;
+    letter-spacing: 0.06em; padding: 7px 12px; cursor: pointer;
+    border-radius: 100px; transition: all 0.2s; white-space: nowrap;
+  }
+  .view-btn.active { background: var(--accent); color: #fff; }
+
+  /* 나침반 뷰 */
+  #compass-view {
+    display: flex; align-items: center; justify-content: center; flex: 1;
+  }
+
+  /* 게임 지도 뷰 */
+  #game-map-view {
+    flex: 1; width: 100%; position: relative; border-radius: 12px; overflow: hidden;
+  }
+  #game-map-container {
+    width: 100%; height: 100%;
+  }
+
+  /* 오버레이 뷰 */
+  #overlay-view {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .overlay-wrap {
+    position: relative;
+    width: min(280px, 76vw); height: min(280px, 76vw);
+  }
+  #overlay-map-container {
+    position: absolute; inset: -30%;
+    border-radius: 50%; overflow: hidden;
+    opacity: 0.35;
+    transition: transform 0.15s linear;
+  }
+  #overlay-map-container > div {
+    width: 100% !important; height: 100% !important;
+  }
+  .overlay-compass {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .overlay-compass .compass-ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 1px solid rgba(255,60,95,0.3);
+  }
+  .overlay-compass .compass-inner {
+    position: relative; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #overlay-arrow-container {
+    position: absolute; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
 
   #confetti-canvas { position:fixed;inset:0;pointer-events:none;z-index:5; }
 
@@ -566,6 +629,14 @@
 
 <!-- ── 게임 화면 ── -->
 <div id="game-screen" class="screen">
+
+  <!-- 뷰 모드 전환 탭 -->
+  <div id="view-mode-bar">
+    <button class="view-btn active" data-mode="compass" onclick="setViewMode('compass')">🧭 나침반</button>
+    <button class="view-btn" data-mode="map" onclick="setViewMode('map')">🗺️ 지도</button>
+    <button class="view-btn" data-mode="overlay" onclick="setViewMode('overlay')">✨ 오버레이</button>
+  </div>
+
   <div class="top-info">
     <div class="distance-display">
       <span id="dist-value">---</span><span class="unit" id="dist-unit"> m</span>
@@ -579,21 +650,55 @@
     <div id="debug-info"></div>
   </div>
 
-  <div class="compass-wrap">
-    <div class="compass-ring"></div>
-    <div class="compass-inner">
-      <span class="cardinal n">N</span>
-      <span class="cardinal s">S</span>
-      <span class="cardinal e">E</span>
-      <span class="cardinal w">W</span>
-      <div id="arrow-container">
-        <svg class="arrow-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="50,8 62,55 50,48 38,55" fill="#ff3c5f"/>
-          <polygon points="50,92 62,55 50,62 38,55" fill="#2a1020"/>
-          <circle cx="50" cy="55" r="6" fill="#ff3c5f" opacity="0.5"/>
-        </svg>
+  <!-- 나침반 뷰 -->
+  <div id="compass-view">
+    <div class="compass-wrap">
+      <div class="compass-ring"></div>
+      <div class="compass-inner">
+        <span class="cardinal n">N</span>
+        <span class="cardinal s">S</span>
+        <span class="cardinal e">E</span>
+        <span class="cardinal w">W</span>
+        <div id="arrow-container">
+          <svg class="arrow-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="50,8 62,55 50,48 38,55" fill="#ff3c5f"/>
+            <polygon points="50,92 62,55 50,62 38,55" fill="#2a1020"/>
+            <circle cx="50" cy="55" r="6" fill="#ff3c5f" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="center-dot"></div>
       </div>
-      <div class="center-dot"></div>
+    </div>
+  </div>
+
+  <!-- 지도 뷰 -->
+  <div id="game-map-view" style="display:none;">
+    <div id="game-map-container"></div>
+  </div>
+
+  <!-- 오버레이 뷰 -->
+  <div id="overlay-view" style="display:none;">
+    <div class="overlay-wrap">
+      <!-- 회전하는 지도 -->
+      <div id="overlay-map-container"></div>
+      <!-- 그 위에 나침반 오버레이 -->
+      <div class="overlay-compass">
+        <div class="compass-ring" style="opacity:0.4;"></div>
+        <div class="compass-inner">
+          <span class="cardinal n" style="color:rgba(232,228,220,0.5)">N</span>
+          <span class="cardinal s" style="color:rgba(232,228,220,0.5)">S</span>
+          <span class="cardinal e" style="color:rgba(232,228,220,0.5)">E</span>
+          <span class="cardinal w" style="color:rgba(232,228,220,0.5)">W</span>
+          <div id="overlay-arrow-container">
+            <svg class="arrow-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="50,8 62,55 50,48 38,55" fill="#ff3c5f"/>
+              <polygon points="50,92 62,55 50,62 38,55" fill="#2a1020"/>
+              <circle cx="50" cy="55" r="6" fill="#ff3c5f" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="center-dot"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -898,6 +1003,101 @@ window.createRoomWithMap = async function() {
   });
 };
 
+// ── 뷰 모드 ──
+let currentViewMode = 'compass';
+let gameMap = null;
+let overlayMap = null;
+let gameMapMarkerMe = null;
+let gameMapMarkerDest = null;
+
+window.setViewMode = function(mode) {
+  currentViewMode = mode;
+  document.querySelectorAll('.view-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  document.getElementById('compass-view').style.display = mode === 'compass' ? 'flex' : 'none';
+  document.getElementById('game-map-view').style.display = mode === 'map' ? 'flex' : 'none';
+  document.getElementById('overlay-view').style.display = mode === 'overlay' ? 'flex' : 'none';
+
+  if (mode === 'map' && !gameMap) initGameMap();
+  if (mode === 'overlay' && !overlayMap) initOverlayMap();
+  if (mode === 'map' && gameMap) updateGameMap();
+};
+
+function initGameMap() {
+  if (!userLat || !kakao) return;
+  const container = document.getElementById('game-map-container');
+  gameMap = new kakao.maps.Map(container, {
+    center: new kakao.maps.LatLng(userLat, userLng),
+    level: 4,
+  });
+  // 내 위치 마커
+  gameMapMarkerMe = new kakao.maps.Marker({
+    position: new kakao.maps.LatLng(userLat, userLng),
+    map: gameMap,
+    title: '나',
+  });
+  // 목적지 마커
+  if (targetPlace) {
+    gameMapMarkerDest = new kakao.maps.Marker({
+      position: new kakao.maps.LatLng(targetPlace.lat, targetPlace.lng),
+      map: gameMap,
+      title: targetPlace.name,
+    });
+    // 목적지 인포윈도우
+    const iw = new kakao.maps.InfoWindow({
+      content: `<div style="padding:4px 8px;font-size:11px;color:#333">${targetPlace.name}</div>`,
+    });
+    iw.open(gameMap, gameMapMarkerDest);
+  }
+  updateGameMap();
+}
+
+function updateGameMap() {
+  if (!gameMap || !userLat) return;
+  const myPos = new kakao.maps.LatLng(userLat, userLng);
+  if (gameMapMarkerMe) gameMapMarkerMe.setPosition(myPos);
+  gameMap.setCenter(myPos);
+}
+
+function initOverlayMap() {
+  if (!userLat || !kakao) return;
+  const container = document.getElementById('overlay-map-container');
+  overlayMap = new kakao.maps.Map(container, {
+    center: new kakao.maps.LatLng(userLat, userLng),
+    level: 3,
+    draggable: false,
+    scrollwheel: false,
+    disableDoubleClick: true,
+    disableDoubleClickZoom: true,
+  });
+  // 목적지 마커
+  if (targetPlace) {
+    new kakao.maps.Marker({
+      position: new kakao.maps.LatLng(targetPlace.lat, targetPlace.lng),
+      map: overlayMap,
+    });
+  }
+}
+
+function updateOverlayMap() {
+  if (!overlayMap || !userLat) return;
+  // 지도 중심을 내 위치로
+  overlayMap.setCenter(new kakao.maps.LatLng(userLat, userLng));
+  // 지도 컨테이너를 방향 반대로 회전 (지도가 실제 방향을 유지하도록)
+  const container = document.getElementById('overlay-map-container');
+  container.style.transform = `rotate(${-deviceHeading}deg)`;
+  // 오버레이 화살표는 목적지 방향으로
+  if (targetPlace) {
+    const targetAngle = bearing(userLat, userLng, targetPlace.lat, targetPlace.lng) - deviceHeading;
+    let diff = targetAngle - currentDisplayAngle;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    currentDisplayAngle += diff * 0.12;
+    document.getElementById('overlay-arrow-container').style.transform = `rotate(${currentDisplayAngle}deg)`;
+  }
+}
+
 // ── 반경 선택 ──
 window.selectRadius = function(btn) {
   document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
@@ -1140,6 +1340,8 @@ function startGameUI() {
   document.getElementById('chat-toggle-btn').style.justifyContent = 'center';
 
   showScreen('game-screen');
+  document.getElementById('view-mode-bar').style.display = 'flex';
+  setViewMode('compass');
   startWatch();
   requestCompass();
   updateUI();
@@ -1272,7 +1474,12 @@ function startArrowLoop() {
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
     currentDisplayAngle += diff * 0.12;
+    // 나침반 뷰 화살표
     document.getElementById('arrow-container').style.transform = `rotate(${currentDisplayAngle}deg)`;
+    // 오버레이 뷰 업데이트
+    if (currentViewMode === 'overlay') updateOverlayMap();
+    // 지도 뷰 업데이트 (가끔만)
+    if (currentViewMode === 'map' && Math.random() < 0.05) updateGameMap();
     arrowAnimFrame = requestAnimationFrame(loop);
   }
   loop();
@@ -1359,6 +1566,10 @@ window.restartGame = function() {
   if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
   if (isMulti && roomRef) { off(roomRef); remove(roomRef); }
   roomCode = null; myRole = null; isMulti = false; roomRef = null;
+  document.getElementById('view-mode-bar').style.display = 'none';
+  gameMap = null; overlayMap = null;
+  gameMapMarkerMe = null; gameMapMarkerDest = null;
+  currentViewMode = 'compass';
   chatOpen = false; unreadCount = 0;
   document.getElementById('chat-panel').classList.remove('open');
   document.getElementById('chat-toggle-btn').style.display = 'none';
