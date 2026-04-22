@@ -3,740 +3,1461 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>랜덤 카페 데이트</title>
+<title>끼리끼리</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+:root {
+  --bg: #f7f4ef;
+  --surface: #fff;
+  --text: #1a1814;
+  --muted: #9e9a94;
+  --border: #e8e3db;
+  --accent: #c0392b;
+  --accent-light: rgba(192,57,43,0.08);
+  --green: #2d6a4f;
+  --blue: #2563eb;
+  --gold: #92741a;
+}
 
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --accent: #ff3c5f;
-    --gold: #f5c842;
-    --text: #e8e4dc;
-    --muted: #4a4860;
-    --glow: rgba(255,60,95,0.4);
-    --green: #4ade80;
-    --blue: #60a5fa;
-  }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    user-select: none;
-    position: relative;
-  }
+/* 배경 텍스처 */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c0392b' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.6;
+}
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,60,95,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,60,95,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
+/* ── 화면 공통 ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  width: 100%;
+  max-width: 390px;
+  padding: 0 28px;
+  height: 100dvh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: flex; }
 
-  .screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    z-index: 10;
-    width: 100%;
-    max-width: 380px;
-    padding: 28px 24px;
-    gap: 16px;
-  }
-  .screen.active { display: flex; }
+/* ══════════════════════════════
+   시작 화면
+══════════════════════════════ */
+#start-screen {
+  justify-content: center;
+  gap: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
 
-  .heart-icon { font-size: 2.4rem; animation: heartbeat 1.5s ease-in-out infinite; }
-  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.brand-area {
+  width: 100%;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
 
-  .title-ko {
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: clamp(2rem, 8vw, 2.8rem);
-    font-weight: 700;
-    line-height: 1.15;
-    text-align: center;
-  }
-  .title-ko span { color: var(--accent); }
+.brand-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
 
-  .sub { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; }
-  .desc { font-size: 0.73rem; color: var(--muted); max-width: 280px; line-height: 1.9; text-align: center; }
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 11vw, 4.2rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.brand-name .dot { color: var(--accent); }
 
-  .btn-primary {
-    background: var(--accent); color: #fff; border: none;
-    font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700;
-    letter-spacing: 0.12em; padding: 15px; cursor: pointer;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    transition: all 0.2s; text-transform: uppercase; width: 100%;
-  }
-  .btn-primary:active { background: #ff1a40; }
+.brand-sub {
+  margin-top: 14px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.9;
+  font-weight: 300;
+}
 
-  .btn-secondary {
-    background: transparent; color: var(--blue); border: 1px solid var(--blue);
-    font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700;
-    letter-spacing: 0.12em; padding: 15px; cursor: pointer;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    transition: all 0.2s; text-transform: uppercase; width: 100%;
-  }
-  .btn-secondary:active { background: rgba(96,165,250,0.15); }
+/* 모드 선택 */
+.mode-area {
+  width: 100%;
+  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .btn-outline {
-    background: transparent; color: var(--accent); border: 1px solid var(--accent);
-    font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 700;
-    letter-spacing: 0.12em; padding: 12px; cursor: pointer;
-    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-    transition: all 0.2s; text-transform: uppercase; width: 100%;
-  }
+.mode-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
 
-  .section-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; text-align: left; width: 100%; }
+.mode-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.mode-card::after {
+  content: '→';
+  position: absolute;
+  right: 20px;
+  font-size: 1rem;
+  color: var(--border);
+  transition: all 0.2s;
+}
+.mode-card:active { transform: scale(0.98); }
+.mode-card:active::after { right: 16px; color: var(--accent); }
 
-  .radius-wrap { display: flex; gap: 8px; width: 100%; }
-  .radius-btn {
-    flex: 1; background: var(--surface); border: 1px solid var(--muted);
-    color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.68rem;
-    letter-spacing: 0.08em; padding: 10px 0; cursor: pointer;
-    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
-    transition: all 0.15s; text-align: center;
-  }
-  .radius-btn.active { background: rgba(255,60,95,0.15); border-color: var(--accent); color: var(--accent); }
+.mode-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.mode-icon.solo { background: var(--accent-light); }
+.mode-icon.together { background: rgba(37,99,235,0.08); }
 
-  .divider {
-    width: 100%; display: flex; align-items: center; gap: 12px;
-    font-size: 0.58rem; color: var(--muted); letter-spacing: 0.15em;
-  }
-  .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--muted); opacity: 0.3; }
+.mode-info { flex: 1; }
+.mode-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.mode-desc {
+  font-size: 0.62rem;
+  color: var(--muted);
+  line-height: 1.6;
+  font-weight: 300;
+}
 
-  .input-wrap { width: 100%; position: relative; }
-  .code-input {
-    width: 100%; background: var(--surface); border: 1px solid var(--muted);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 1.2rem; letter-spacing: 0.3em; padding: 14px 16px;
-    text-align: center; text-transform: uppercase; outline: none;
-    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-    transition: border-color 0.2s;
-  }
-  .code-input:focus { border-color: var(--accent); }
-  .code-input::placeholder { color: var(--muted); letter-spacing: 0.2em; font-size: 0.8rem; }
+/* GPS 상태 */
+.gps-bar {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.gps-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.gps-dot.ok { background: var(--green); box-shadow: 0 0 6px rgba(45,106,79,0.4); }
+.gps-dot.err { background: var(--accent); }
+.gps-text {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+.gps-coords {
+  font-size: 0.52rem;
+  color: var(--border);
+  font-family: monospace;
+}
 
-  /* 대기 화면 */
-  #wait-screen { text-align: center; }
+/* ══════════════════════════════
+   닉네임 화면
+══════════════════════════════ */
+#nickname-screen {
+  justify-content: center;
+  gap: 28px;
+}
 
-  .room-code-display {
-    background: var(--surface); border: 1px solid var(--gold);
-    padding: 20px 32px; text-align: center;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    width: 100%;
-  }
-  .room-code-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.2em; margin-bottom: 8px; }
-  .room-code-value { font-size: 2rem; font-weight: 700; color: var(--gold); letter-spacing: 0.3em; }
+.page-header {
+  width: 100%;
+}
+.page-eyebrow {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 7vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+}
+.page-title em { color: var(--accent); font-style: italic; }
+.page-desc {
+  margin-top: 10px;
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.8;
+  font-weight: 300;
+}
 
-  .players-wrap { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-  .player-row {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
-    padding: 12px 16px;
-    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
-  }
-  .player-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
-  .player-dot.me { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .player-dot.other { background: var(--blue); box-shadow: 0 0 6px var(--blue); animation: pulse 1.5s infinite; }
-  .player-name { font-size: 0.72rem; color: var(--text); }
-  .player-badge { margin-left: auto; font-size: 0.52rem; color: var(--muted); letter-spacing: 0.1em; }
+.input-field {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  user-select: text;
+}
+.input-field:focus { border-color: var(--text); }
+.input-field::placeholder {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: var(--border);
+  font-style: italic;
+}
 
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* ══════════════════════════════
+   솔로 옵션 화면
+══════════════════════════════ */
+#solo-screen {
+  justify-content: center;
+  gap: 24px;
+}
 
-  .waiting-anim { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em; animation: blink 1.2s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+.radius-section { width: 100%; }
+.section-title {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.radius-pills {
+  display: flex;
+  gap: 8px;
+}
+.radius-pill {
+  flex: 1;
+  padding: 12px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-weight: 500;
+}
+.radius-pill.active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
 
-  /* 게임 화면 */
-  #game-screen {
-    justify-content: space-between;
-    height: 100dvh;
-    padding: 90px 24px 20px;
-    gap: 0;
-    max-width: 100%;
-    position: relative;
-  }
+.map-option {
+  width: 100%;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.map-option:active { border-color: var(--text); }
+.map-option-icon { font-size: 1.1rem; }
+.map-option-text { flex: 1; }
+.map-option-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.map-option-sub {
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.map-option-arrow { color: var(--border); font-size: 0.9rem; }
 
-  .top-info { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* ══════════════════════════════
+   함께하기 화면
+══════════════════════════════ */
+#together-screen {
+  justify-content: center;
+  gap: 16px;
+}
 
-  .distance-display {
-    font-size: clamp(2.8rem, 13vw, 4rem);
-    font-weight: 700; letter-spacing: -0.03em; line-height: 1;
-  }
-  .distance-display .unit { font-size: 0.38em; color: var(--muted); letter-spacing: 0.1em; }
-  .distance-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
-  .status-dot { width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;animation:pulse 2s infinite; }
+.together-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  /* 상대방 거리 */
-  .opponent-info {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2);
-    padding: 6px 14px; font-size: 0.62rem; color: var(--blue);
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-  }
-  .opponent-dot { width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 1.5s infinite; }
+.action-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.action-card:active { transform: scale(0.98); border-color: var(--text); }
+.action-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  background: var(--accent-light);
+}
+.action-icon.blue { background: rgba(37,99,235,0.08); }
+.action-info { flex: 1; }
+.action-title { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.action-desc { font-size: 0.6rem; color: var(--muted); margin-top: 2px; line-height: 1.5; }
 
-  #reset-btn {
-    background: transparent; border: 1px solid var(--muted); color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em;
-    padding: 6px 16px; cursor: pointer;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-    transition: all 0.15s; text-transform: uppercase;
-  }
-  #reset-btn:active { border-color: var(--accent); color: var(--accent); }
+.divider-line {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--border);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+}
+.divider-line::before, .divider-line::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
 
-  .compass-wrap {
-    position: relative;
-    width: min(230px, 62vw); height: min(230px, 62vw);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .compass-ring { position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,60,95,0.2); }
-  .compass-ring::before { content:'';position:absolute;inset:12px;border-radius:50%;border:1px solid rgba(255,60,95,0.1); }
-  .compass-inner { position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
-  #arrow-container { position:absolute;width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
-  .arrow-svg { width:58%;height:58%;filter:drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px rgba(255,60,95,0.3)); }
-  .center-dot { position:absolute;width:10px;height:10px;background:var(--gold);border-radius:50%;box-shadow:0 0 8px var(--gold);z-index:5; }
-  .cardinal { position:absolute;font-size:0.6rem;color:var(--muted);letter-spacing:.1em; }
-  .cardinal.n { top:4px;left:50%;transform:translateX(-50%); }
-  .cardinal.s { bottom:4px;left:50%;transform:translateX(-50%); }
-  .cardinal.e { right:4px;top:50%;transform:translateY(-50%); }
-  .cardinal.w { left:4px;top:50%;transform:translateY(-50%); }
+.code-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color 0.2s;
+  user-select: text;
+}
+.code-input:focus { border-color: var(--text); }
+.code-input::placeholder {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--border);
+  font-style: italic;
+  font-weight: 400;
+}
 
-  .bottom-controls { display:flex;flex-direction:column;align-items:center;gap:8px;width:100%; }
+/* ══════════════════════════════
+   대기 화면
+══════════════════════════════ */
+#wait-screen {
+  justify-content: center;
+  gap: 24px;
+}
 
-  #compass-btn {
-    background:rgba(255,60,95,0.12);border:1px solid var(--accent);color:var(--accent);
-    font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;
-    padding:12px 24px;cursor:pointer;
-    clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
-    display:none;
-  }
-  .hint-text { font-size:0.6rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;display:none; }
+.code-display {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+.code-display-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.code-display-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.2em;
+}
+.code-display-hint {
+  margin-top: 8px;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
 
-  #test-toggle-btn {
-    background:transparent;border:1px dashed var(--muted);color:var(--muted);
-    font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;
-    padding:7px 14px;cursor:pointer;
-    clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
-    transition:all 0.15s;text-transform:uppercase;
-  }
-  #test-toggle-btn.revealed { border-color:rgba(245,200,66,0.5);color:var(--gold); }
+.players-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.player-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.player-avatar.me { background: var(--accent-light); color: var(--accent); }
+.player-avatar.other { background: rgba(37,99,235,0.08); color: var(--blue); }
+.player-avatar.empty { background: var(--bg); color: var(--border); border: 1px dashed var(--border); }
+.player-name-text { flex: 1; font-size: 0.78rem; font-weight: 500; color: var(--text); }
+.player-status {
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.player-status.ready { color: var(--green); }
 
-  #dest-box {
-    display:none;font-family:'Nanum Myeongjo',serif;
-    font-size:0.82rem;color:var(--gold);text-align:center;line-height:1.6;
-    padding:8px 14px;border:1px dashed rgba(245,200,66,0.3);
-    background:rgba(245,200,66,0.05);width:100%;
-  }
+.wait-hint {
+  font-size: 0.62rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.8;
+  animation: fadeinout 2s ease-in-out infinite;
+}
+@keyframes fadeinout { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-  #debug-info { font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;opacity:0;transition:opacity 0.5s; }
+/* ══════════════════════════════
+   지도 목적지 설정 화면
+══════════════════════════════ */
+#map-screen {
+  padding: 0;
+  max-width: 100%;
+  width: 100%;
+  height: 100dvh;
+  position: relative;
+  justify-content: flex-start;
+}
 
-  #near-alert {
-    display:none;position:fixed;top:0;left:0;right:0;
-    background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(74,222,128,0.05));
-    border-bottom:1px solid var(--green);z-index:30;
-    padding:14px 20px;flex-direction:column;align-items:center;gap:10px;
-  }
-  .near-title { font-size:0.72rem;color:var(--green);letter-spacing:0.15em;text-transform:uppercase; }
-  .near-dot { display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:7px;animation:pulse 1s infinite; }
-  #near-reveal-btn {
-    background:rgba(74,222,128,0.15);border:1px solid var(--green);color:var(--green);
-    font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;
-    padding:9px 20px;cursor:pointer;
-    clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);
-    transition:all 0.2s;text-transform:uppercase;
-  }
-  #near-name-box {
-    display:none;font-family:'Nanum Myeongjo',serif;
-    font-size:1.1rem;color:var(--green);text-align:center;line-height:1.6;
-    padding:8px 16px;border:1px solid rgba(74,222,128,0.3);
-    background:rgba(74,222,128,0.08);width:100%;max-width:300px;
-  }
+.map-top-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 52px 20px 20px;
+  background: linear-gradient(to bottom, rgba(247,244,239,0.98) 65%, transparent);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  #loading-overlay {
-    display:none;position:fixed;inset:0;
-    background:rgba(10,10,15,0.92);z-index:50;
-    flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  }
-  .loader-ring { width:52px;height:52px;border:2px solid var(--muted);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  .loader-text { font-size:0.68rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase; }
+.map-search-row {
+  display: flex;
+  gap: 8px;
+}
+.map-search-field {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 11px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: var(--text);
+  outline: none;
+  user-select: text;
+}
+.map-search-field:focus { border-color: var(--text); }
+.map-search-field::placeholder { color: var(--muted); }
+.map-search-go {
+  background: var(--text);
+  border: none;
+  border-radius: 100px;
+  padding: 11px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--bg);
+  cursor: pointer;
+  white-space: nowrap;
+}
 
-  #toast {
-    display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-    background:rgba(255,60,95,0.15);border:1px solid var(--accent);color:var(--accent);
-    font-size:0.63rem;letter-spacing:.1em;padding:10px 20px;z-index:100;white-space:nowrap;
-  }
+#kakao-map { width: 100%; height: 100%; }
 
-  /* 도착 화면 */
-  #arrival-screen { gap:16px;text-align:center; }
-  .arrival-emoji { font-size:3rem; }
-  .arrival-title { font-family:'Nanum Myeongjo',serif;font-size:clamp(1.8rem,7vw,2.6rem);font-weight:700;color:var(--gold);line-height:1.2; }
-  .place-reveal { font-family:'Nanum Myeongjo',serif;font-size:clamp(1.4rem,5.5vw,2rem);color:var(--text);line-height:1.3; }
-  .place-address { font-size:.63rem;color:var(--muted);max-width:280px;line-height:1.8; }
-  .winner-badge {
-    font-size:0.72rem;letter-spacing:0.15em;padding:8px 20px;
-    clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
-  }
-  .winner-badge.win { background:rgba(74,222,128,0.15);border:1px solid var(--green);color:var(--green); }
-  .winner-badge.lose { background:rgba(96,165,250,0.15);border:1px solid var(--blue);color:var(--blue); }
-  .btn-row { display:flex;gap:10px;width:100%;max-width:300px; }
-  .btn-row .btn-outline { flex:1; }
+.map-bottom-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px 20px 36px;
+  background: linear-gradient(to top, rgba(247,244,239,0.98) 65%, transparent);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  /* 뷰 모드 탭 */
-  #view-mode-bar {
-    position: absolute; top: 48px; left: 50%; transform: translateX(-50%);
-    display: none; gap: 4px; z-index: 20;
-    background: rgba(10,10,15,0.8); padding: 4px; border-radius: 100px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .view-btn {
-    background: transparent; border: none; color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.58rem;
-    letter-spacing: 0.06em; padding: 7px 12px; cursor: pointer;
-    border-radius: 100px; transition: all 0.2s; white-space: nowrap;
-  }
-  .view-btn.active { background: var(--accent); color: #fff; }
+#map-place-card {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.map-place-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.map-place-addr { font-size: 0.62rem; color: var(--muted); margin-top: 3px; }
 
-  /* 나침반 뷰 */
-  #compass-view {
-    display: flex; align-items: center; justify-content: center; flex: 1;
-  }
+.map-btn-row { display: flex; gap: 8px; }
 
-  /* 게임 지도 뷰 */
-  #game-map-view {
-    flex: 1; width: 100%; position: relative; border-radius: 12px; overflow: hidden;
-  }
-  #game-map-container {
-    width: 100%; height: 100%;
-  }
+/* ══════════════════════════════
+   게임 화면
+══════════════════════════════ */
+#game-screen {
+  max-width: 100%;
+  width: 100%;
+  height: 100dvh;
+  padding: 0;
+  justify-content: flex-start;
+  position: relative;
+  overflow: hidden;
+}
 
-  /* 오버레이 뷰 */
-  #overlay-view {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-  }
-  .overlay-wrap {
-    position: relative;
-    width: min(280px, 76vw); height: min(280px, 76vw);
-  }
-  #overlay-map-container {
-    position: absolute; inset: -30%;
-    border-radius: 50%; overflow: hidden;
-    opacity: 0.35;
-    transition: transform 0.15s linear;
-  }
-  #overlay-map-container > div {
-    width: 100% !important; height: 100% !important;
-  }
-  .overlay-compass {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .overlay-compass .compass-ring {
-    position: absolute; inset: 0; border-radius: 50%;
-    border: 1px solid rgba(255,60,95,0.3);
-  }
-  .overlay-compass .compass-inner {
-    position: relative; width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #overlay-arrow-container {
-    position: absolute; width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-  }
+/* 뷰 모드 탭 */
+.view-tabs {
+  position: absolute;
+  top: 52px; left: 50%; transform: translateX(-50%);
+  display: none;
+  background: rgba(247,244,239,0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 3px;
+  gap: 2px;
+  z-index: 20;
+}
+.vtab {
+  border: none;
+  background: transparent;
+  border-radius: 100px;
+  padding: 7px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.vtab.active {
+  background: var(--text);
+  color: var(--bg);
+}
 
-  #confetti-canvas { position:fixed;inset:0;pointer-events:none;z-index:5; }
+/* 게임 메인 레이아웃 */
+.game-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100px 28px 28px;
+  gap: 0;
+}
 
-  /* 지도 화면 */
-  #map-screen {
-    padding: 0; max-width: 100%; width: 100%;
-    height: 100dvh; position: relative;
-  }
-  #kakao-map {
-    width: 100%; height: 100%;
-  }
-  .map-overlay {
-    position: absolute; top: 0; left: 0; right: 0;
-    padding: 52px 16px 12px;
-    background: linear-gradient(to bottom, rgba(10,10,15,0.95) 60%, transparent);
-    z-index: 10; display: flex; flex-direction: column; gap: 10px;
-  }
-  .map-title { font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:var(--text); text-align:center; }
-  .map-desc { font-size:0.6rem; color:var(--muted); letter-spacing:0.12em; text-align:center; }
-  .map-bottom {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 16px; z-index: 10;
-    background: linear-gradient(to top, rgba(10,10,15,0.98) 70%, transparent);
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  #map-selected-info {
-    display: none; background: var(--surface);
-    border: 1px solid var(--accent); padding: 12px 16px;
-    font-size: 0.72rem; line-height: 1.6;
-    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-  }
-  #map-selected-info .place-nm { color: var(--accent); font-weight:700; }
-  #map-selected-info .place-addr { color: var(--muted); font-size:0.62rem; }
-  .map-btn-row { display: flex; gap: 8px; }
-  .map-btn-row button { flex:1; }
-  #map-confirm-btn {
-    display: none;
-  }
-  .map-marker-pin {
-    position: absolute; transform: translate(-50%, -100%);
-    font-size: 2rem; z-index: 20; pointer-events: none;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-    animation: bounce 0.3s ease;
-  }
-  @keyframes bounce { 0%{transform:translate(-50%,-80%)} 100%{transform:translate(-50%,-100%)} }
-  .map-search-wrap {
-    display: flex; gap: 8px;
-  }
-  .map-search-input {
-    flex:1; background: var(--surface); border: 1px solid var(--muted);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 0.72rem; padding: 10px 12px; outline: none;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-    user-select: text;
-  }
-  .map-search-input:focus { border-color: var(--accent); }
-  .map-search-btn {
-    background: var(--surface); border: 1px solid var(--muted); color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.62rem; padding: 10px 14px; cursor: pointer;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-    white-space: nowrap;
-  }
-  .map-search-btn:active { border-color: var(--accent); color: var(--accent); }
+.game-dist-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
 
+.game-dist-num {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 14vw, 5rem);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.game-dist-unit {
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.game-dist-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  margin-top: 4px;
+}
+.pulse-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-anim 2s ease-in-out infinite;
+}
+@keyframes pulse-anim { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
 
-  /* 닉네임 화면 */
-  #nickname-screen { gap: 20px; text-align: center; }
+.opponent-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(37,99,235,0.06);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: 100px;
+  font-size: 0.6rem;
+  color: var(--blue);
+  margin-top: 8px;
+}
+.opponent-bar-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse-anim 1.5s infinite;
+}
 
-  .nickname-input {
-    width: 100%; background: var(--surface); border: 1px solid var(--muted);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 1rem; letter-spacing: 0.1em; padding: 14px 16px;
-    text-align: center; outline: none;
-    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
-    transition: border-color 0.2s;
-  }
-  .nickname-input:focus { border-color: var(--accent); }
-  .nickname-input::placeholder { color: var(--muted); }
+.game-reset-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.6rem;
+  color: var(--muted);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.15s;
+}
+.game-reset-btn:active { border-color: var(--text); color: var(--text); }
 
-  /* 채팅 */
-  #chat-panel {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(10,10,15,0.96);
-    border-top: 1px solid rgba(255,60,95,0.2);
-    z-index: 20; display: none;
-    flex-direction: column;
-    max-height: 45dvh;
-  }
-  #chat-panel.open { display: flex; }
+/* 화살표 뷰 */
+#compass-view {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
-  .chat-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
-    cursor: pointer;
-  }
-  .chat-header-title { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
-  .chat-close { font-size: 0.72rem; color: var(--muted); cursor: pointer; }
+.arrow-stage {
+  position: relative;
+  width: min(220px, 60vw);
+  height: min(220px, 60vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  #chat-messages {
-    flex: 1; overflow-y: auto; padding: 12px 16px;
-    display: flex; flex-direction: column; gap: 8px;
-    scrollbar-width: none;
-  }
-  #chat-messages::-webkit-scrollbar { display: none; }
+/* 얇은 원형 가이드 */
+.arrow-guide {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+.arrow-guide::after {
+  content: '';
+  position: absolute; inset: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(232,227,219,0.5);
+}
 
-  .chat-msg {
-    display: flex; flex-direction: column; gap: 2px;
-    max-width: 80%;
-  }
-  .chat-msg.me { align-self: flex-end; align-items: flex-end; }
-  .chat-msg.other { align-self: flex-start; align-items: flex-start; }
-  .chat-msg.system { align-self: center; align-items: center; max-width: 100%; }
+/* 방위 표시 */
+.arrow-cardinal {
+  position: absolute;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: rgba(158,154,148,0.5);
+  font-weight: 600;
+}
+.arrow-cardinal.n { top: 8px; left: 50%; transform: translateX(-50%); }
+.arrow-cardinal.s { bottom: 8px; left: 50%; transform: translateX(-50%); }
+.arrow-cardinal.e { right: 8px; top: 50%; transform: translateY(-50%); }
+.arrow-cardinal.w { left: 8px; top: 50%; transform: translateY(-50%); }
 
-  .chat-nickname { font-size: 0.52rem; color: var(--muted); letter-spacing: 0.1em; padding: 0 4px; }
-  .chat-bubble {
-    font-size: 0.72rem; padding: 8px 12px; line-height: 1.5;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-  }
-  .chat-msg.me .chat-bubble { background: rgba(255,60,95,0.2); color: var(--text); }
-  .chat-msg.other .chat-bubble { background: rgba(96,165,250,0.15); color: var(--text); }
-  .chat-msg.system .chat-bubble { background: rgba(255,255,255,0.05); color: var(--muted); font-size: 0.6rem; clip-path: none; }
+#arrow-container {
+  position: absolute;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .chat-input-wrap {
-    display: flex; gap: 8px; padding: 10px 16px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-  .chat-text-input {
-    flex: 1; background: var(--surface); border: 1px solid var(--muted);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 0.72rem; padding: 10px 12px; outline: none;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-    user-select: text;
-  }
-  .chat-text-input:focus { border-color: var(--accent); }
-  .chat-send-btn {
-    background: var(--accent); border: none; color: #fff;
-    font-family: 'Space Mono', monospace; font-size: 0.68rem;
-    padding: 10px 16px; cursor: pointer;
-    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-  }
+/* 화살표 SVG — 나침반보다 화살표에 가깝게 */
+.arrow-svg {
+  width: 52%; height: 52%;
+  filter: drop-shadow(0 4px 12px rgba(192,57,43,0.25));
+}
 
-  /* 채팅 버튼 (게임 화면) */
-  #chat-toggle-btn {
-    position: fixed; bottom: 20px; right: 20px;
-    background: var(--accent); border: none; color: #fff;
-    width: 48px; height: 48px; border-radius: 50%;
-    font-size: 1.2rem; cursor: pointer; z-index: 15;
-    box-shadow: 0 0 16px var(--glow);
-    display: none;
-  }
-  #chat-badge {
-    position: absolute; top: -4px; right: -4px;
-    background: var(--gold); color: #000;
-    width: 18px; height: 18px; border-radius: 50%;
-    font-size: 0.55rem; font-weight: 700;
-    display: none; align-items: center; justify-content: center;
-  }
+/* 중심 점 */
+.arrow-center {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text);
+  z-index: 5;
+}
 
+/* 지도 뷰 */
+#game-map-view {
+  flex: 1;
+  width: calc(100% + 56px);
+  margin: 0 -28px;
+  position: relative;
+  display: none;
+}
+#game-map-container { width: 100%; height: 100%; }
+
+/* 오버레이 뷰 */
+#overlay-view {
+  flex: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.overlay-wrap {
+  position: relative;
+  width: min(240px, 65vw);
+  height: min(240px, 65vw);
+}
+#overlay-map-container {
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0.3;
+  transition: transform 0.12s linear;
+}
+.overlay-compass-layer {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.overlay-compass-layer .arrow-guide { border-color: rgba(26,24,20,0.15); }
+#overlay-arrow-container {
+  position: absolute;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* 게임 하단 */
+.game-bottom {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#compass-perm-btn {
+  display: none;
+  background: var(--accent-light);
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: 10px;
+  padding: 11px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.game-hint {
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: none;
+}
+
+.dest-toggle-btn {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.62rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dest-toggle-btn.revealed {
+  border-color: var(--gold);
+  color: var(--gold);
+  border-style: solid;
+}
+
+#dest-box {
+  display: none;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(146,116,26,0.06);
+  border: 1px solid rgba(146,116,26,0.2);
+  border-radius: 10px;
+  text-align: center;
+}
+.dest-name { font-family: 'Playfair Display', serif; font-size: 0.88rem; color: var(--gold); }
+.dest-addr { font-size: 0.58rem; color: var(--muted); margin-top: 3px; }
+
+#debug-info {
+  font-size: 0.52rem;
+  color: var(--border);
+  letter-spacing: 0.06em;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+/* ══════════════════════════════
+   근접 알림
+══════════════════════════════ */
+#near-alert {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(247,244,239,0.97);
+  border-bottom: 1px solid var(--border);
+  z-index: 30;
+  padding: 52px 24px 16px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.near-title {
+  font-size: 0.65rem;
+  color: var(--green);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.near-title::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse-anim 1s infinite;
+}
+#near-reveal-btn {
+  background: transparent;
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  padding: 9px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--green);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#near-name-box {
+  display: none;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(45,106,79,0.06);
+  border: 1px solid rgba(45,106,79,0.2);
+  border-radius: 10px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--green);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════
+   도착 화면
+══════════════════════════════ */
+#arrival-screen {
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.arrival-emoji { font-size: 3rem; }
+
+.arrival-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+.arrival-heading em { color: var(--accent); font-style: italic; }
+
+#winner-badge {
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+#winner-badge.win { background: rgba(45,106,79,0.1); color: var(--green); border: 1px solid rgba(45,106,79,0.2); }
+#winner-badge.lose { background: rgba(37,99,235,0.08); color: var(--blue); border: 1px solid rgba(37,99,235,0.15); }
+
+#arrival-place-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 5vw, 1.8rem);
+  color: var(--text);
+  line-height: 1.3;
+}
+#arrival-place-addr {
+  font-size: 0.65rem;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 280px;
+}
+
+.arrival-btns { display: flex; gap: 10px; width: 100%; max-width: 300px; }
+
+/* ══════════════════════════════
+   채팅
+══════════════════════════════ */
+#chat-panel {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(247,244,239,0.97);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  z-index: 25;
+  display: none;
+  flex-direction: column;
+  max-height: 50dvh;
+}
+#chat-panel.open { display: flex; }
+
+.chat-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.chat-bar-title { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+.chat-bar-close { font-size: 0.75rem; color: var(--muted); }
+
+#chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: none;
+}
+#chat-messages::-webkit-scrollbar { display: none; }
+
+.cmsg { display: flex; flex-direction: column; gap: 3px; max-width: 78%; }
+.cmsg.me { align-self: flex-end; align-items: flex-end; }
+.cmsg.other { align-self: flex-start; align-items: flex-start; }
+.cmsg.system { align-self: center; align-items: center; max-width: 100%; }
+.cmsg-nick { font-size: 0.5rem; color: var(--muted); padding: 0 4px; }
+.cmsg-bubble {
+  font-size: 0.72rem;
+  padding: 9px 13px;
+  border-radius: 14px;
+  line-height: 1.5;
+}
+.cmsg.me .cmsg-bubble { background: var(--text); color: var(--bg); border-bottom-right-radius: 4px; }
+.cmsg.other .cmsg-bubble { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+.cmsg.system .cmsg-bubble { background: transparent; color: var(--muted); font-size: 0.58rem; letter-spacing: 0.06em; }
+
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+}
+.chat-field {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 10px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: var(--text);
+  outline: none;
+  user-select: text;
+}
+.chat-field:focus { border-color: var(--text); }
+.chat-send {
+  background: var(--text);
+  border: none;
+  border-radius: 100px;
+  padding: 10px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--bg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#chat-fab {
+  position: fixed;
+  bottom: 24px; right: 20px;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--text);
+  border: none;
+  color: var(--bg);
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 15;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(26,24,20,0.2);
+}
+#chat-badge {
+  position: absolute; top: -3px; right: -3px;
+  background: var(--accent); color: #fff;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  font-size: 0.5rem; font-weight: 700;
+  display: none; align-items: center; justify-content: center;
+}
+
+/* ══════════════════════════════
+   공통 버튼
+══════════════════════════════ */
+.btn-primary {
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 14px;
+  padding: 17px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:active { opacity: 0.8; }
+
+.btn-secondary {
+  width: 100%;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 15px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secondary:active { border-color: var(--text); }
+
+.btn-back {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 0;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-back::before { content: '←'; }
+
+/* ══════════════════════════════
+   로딩 / 토스트
+══════════════════════════════ */
+#loading-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(247,244,239,0.9);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.loader-ring {
+  width: 40px; height: 40px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.loader-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+#toast {
+  display: none;
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  padding: 11px 22px;
+  border-radius: 100px;
+  z-index: 100;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(26,24,20,0.15);
+}
+
+#confetti-canvas { position:fixed;inset:0;pointer-events:none;z-index:5; }
+
+/* 지도 화면 CSS */
+.map-top-bar { pointer-events: auto; }
 </style>
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
-<div id="loading-overlay"><div class="loader-ring"></div><div class="loader-text" id="loader-text">잠시만요...</div></div>
+<div id="loading-overlay">
+  <div class="loader-ring"></div>
+  <div class="loader-label" id="loader-label">잠시만요</div>
+</div>
 <div id="toast"></div>
 
+<!-- 근접 알림 -->
 <div id="near-alert">
-  <div class="near-title"><span class="near-dot"></span>거의 다 왔어요! 10m 이내</div>
-  <button id="near-reveal-btn" onclick="toggleNearName()">☕ 카페 이름 보기</button>
+  <div class="near-title">목적지 근처예요</div>
+  <button id="near-reveal-btn" onclick="toggleNearName()">카페 이름 확인하기</button>
   <div id="near-name-box"></div>
-</div>
-
-<!-- ── 닉네임 화면 ── -->
-<div id="nickname-screen" class="screen">
-  <div class="heart-icon">👤</div>
-  <div class="title-ko" style="font-size:1.8rem;">닉네임<br><span>설정</span></div>
-  <p class="desc">함께하는 사람들에게 보여질 이름이에요</p>
-  <input class="nickname-input" id="nickname-input" type="text" maxlength="10" placeholder="닉네임 입력 (최대 10자)">
-  <button class="btn-primary" onclick="confirmNickname()">확인 →</button>
 </div>
 
 <!-- ── 시작 화면 ── -->
 <div id="start-screen" class="screen active">
-  <div class="heart-icon">💘</div>
-  <div class="title-ko">랜덤<br><span>카페</span><br>데이트</div>
-  <p class="desc">목적지는 비밀 ✦ 화살표만 믿고 걸어가세요</p>
+  <div class="brand-area">
+    <div class="brand-eyebrow">랜덤 카페 탐험</div>
+    <div class="brand-name">끼리<br>끼리<span class="dot">.</span></div>
+    <div class="brand-sub">같은 취향의 사람들과<br>함께하는 랜덤 카페 어드벤처</div>
+  </div>
 
-  <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
-    <div class="section-label">📍 탐색 반경</div>
-    <div class="radius-wrap">
-      <button class="radius-btn active" data-r="1000" onclick="selectRadius(this)">1 km</button>
-      <button class="radius-btn" data-r="2000" onclick="selectRadius(this)">2 km</button>
-      <button class="radius-btn" data-r="3000" onclick="selectRadius(this)">3 km</button>
+  <div class="mode-area">
+    <div class="mode-label">시작하기</div>
+    <div class="mode-card" onclick="goSolo()">
+      <div class="mode-icon solo">🧭</div>
+      <div class="mode-info">
+        <div class="mode-title">혼자 떠나기</div>
+        <div class="mode-desc">나 혼자만의 랜덤 카페 탐험<br>목적지는 출발 후 알 수 있어요</div>
+      </div>
     </div>
+    <div class="mode-card" onclick="goTogether()">
+      <div class="mode-icon together">👥</div>
+      <div class="mode-info">
+        <div class="mode-title">함께 떠나기</div>
+        <div class="mode-desc">친구와 같은 카페로 출발<br>누가 먼저 도착할까요?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gps-bar">
+    <div class="gps-dot" id="gps-dot"></div>
+    <div class="gps-text" id="gps-status">📡 위치 잡는 중...</div>
+    <div class="gps-coords" id="gps-coords"></div>
+  </div>
+</div>
+
+<!-- ── 닉네임 화면 ── -->
+<div id="nickname-screen" class="screen">
+  <button class="btn-back" onclick="showScreen('start-screen')">이전</button>
+  <div class="page-header">
+    <div class="page-eyebrow">함께 떠나기</div>
+    <div class="page-title">어떻게<br>불러드릴까요<em>?</em></div>
+    <div class="page-desc">함께하는 사람들에게 보여질 이름이에요.<br>한번 설정하면 저장돼요.</div>
+  </div>
+  <input class="input-field" id="nickname-input" type="text" maxlength="10" placeholder="닉네임을 입력하세요">
+  <button class="btn-primary" onclick="confirmNickname()">확인</button>
+</div>
+
+<!-- ── 혼자 옵션 화면 ── -->
+<div id="solo-screen" class="screen">
+  <button class="btn-back" onclick="showScreen('start-screen')">이전</button>
+  <div class="page-header">
+    <div class="page-eyebrow">혼자 떠나기</div>
+    <div class="page-title">어떻게<br>찾아볼까요<em>?</em></div>
+  </div>
+
+  <div class="radius-section">
+    <div class="section-title">탐색 반경</div>
+    <div class="radius-pills">
+      <button class="radius-pill active" data-r="1000" onclick="selectRadius(this)">1 km</button>
+      <button class="radius-pill" data-r="2000" onclick="selectRadius(this)">2 km</button>
+      <button class="radius-pill" data-r="3000" onclick="selectRadius(this)">3 km</button>
+    </div>
+  </div>
+
+  <div class="map-option" onclick="openMapPicker(null)">
+    <div class="map-option-icon">🗺️</div>
+    <div class="map-option-text">
+      <div class="map-option-label">지도에서 직접 고르기</div>
+      <div class="map-option-sub">목적지를 직접 지정하고 싶을 때</div>
+    </div>
+    <div class="map-option-arrow">→</div>
   </div>
 
   <button class="btn-primary" onclick="startSolo()">🎲 랜덤 카페로 출발</button>
-
-  <div class="divider">또는</div>
-
-  <button class="btn-primary" onclick="openMapPicker()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);">🗺️ 지도에서 목적지 지정</button>
-
-  <div class="divider">함께 하기</div>
-
-  <button class="btn-primary" onclick="createRoom()" style="background:transparent;border:1px solid var(--accent);color:var(--accent);">🎲 랜덤 카페로 방 만들기</button>
-  <button class="btn-primary" onclick="createRoomWithMap()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);">🗺️ 지도로 목적지 지정 후 방 만들기</button>
-
-  <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
-    <div class="input-wrap">
-      <input class="code-input" id="room-code-input" type="text" maxlength="6" placeholder="초대 코드 입력" oninput="this.value=this.value.toUpperCase()">
-    </div>
-    <button class="btn-secondary" onclick="joinRoom()">참가하기 →</button>
-  </div>
-
-  <div id="gps-status" class="sub">📡 GPS 위치 잡는 중...</div>
-  <div id="gps-coords" style="font-size:0.55rem;color:var(--muted);margin-top:-8px;"></div>
 </div>
 
-<!-- ── 지도 목적지 설정 화면 ── -->
+<!-- ── 함께하기 화면 ── -->
+<div id="together-screen" class="screen">
+  <button class="btn-back" onclick="showScreen('start-screen')">이전</button>
+  <div class="page-header">
+    <div class="page-eyebrow">함께 떠나기</div>
+    <div class="page-title">어떻게<br>시작할까요<em>?</em></div>
+  </div>
+
+  <div class="together-actions">
+    <div class="action-card" onclick="createRoom()">
+      <div class="action-icon">🏠</div>
+      <div class="action-info">
+        <div class="action-title">방 만들기 — 랜덤</div>
+        <div class="action-desc">코드 공유 후 함께 랜덤 카페로 출발</div>
+      </div>
+    </div>
+    <div class="action-card" onclick="createRoomWithMap()">
+      <div class="action-icon">🗺️</div>
+      <div class="action-info">
+        <div class="action-title">방 만들기 — 지도 지정</div>
+        <div class="action-desc">내가 목적지를 선택하고 친구를 초대</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line">또는 참가하기</div>
+
+  <input class="code-input" id="room-code-input" type="text" maxlength="6" placeholder="초대 코드 입력" oninput="this.value=this.value.toUpperCase()">
+  <button class="btn-primary" onclick="joinRoom()">참가하기</button>
+</div>
+
+<!-- ── 지도 화면 ── -->
 <div id="map-screen" class="screen">
-  <div class="map-overlay">
-    <div class="map-title">📍 목적지 설정</div>
-    <div class="map-desc">지도를 클릭하거나 카페를 검색해서 목적지를 선택하세요</div>
-    <div class="map-search-wrap">
-      <input class="map-search-input" id="map-search-input" type="text" placeholder="카페 이름 검색..." onkeydown="if(event.key==='Enter')searchPlace()">
-      <button class="map-search-btn" onclick="searchPlace()">검색</button>
+  <div class="map-top-bar">
+    <div class="map-search-row">
+      <input class="map-search-field" id="map-search-input" type="text" placeholder="카페 이름으로 검색..." onkeydown="if(event.key==='Enter')searchPlace()">
+      <button class="map-search-go" onclick="searchPlace()">검색</button>
     </div>
   </div>
   <div id="kakao-map"></div>
-  <div class="map-bottom">
-    <div id="map-selected-info">
-      <div class="place-nm" id="map-place-name">-</div>
-      <div class="place-addr" id="map-place-addr">-</div>
+  <div class="map-bottom-bar">
+    <div id="map-place-card">
+      <div class="map-place-name" id="map-place-name">-</div>
+      <div class="map-place-addr" id="map-place-addr">-</div>
     </div>
     <div class="map-btn-row">
-      <button class="btn-outline" onclick="showScreen('start-screen')">← 취소</button>
-      <button class="btn-primary" id="map-confirm-btn" onclick="confirmMapPlace()">이 곳으로 출발 →</button>
+      <button class="btn-secondary" style="flex:1" onclick="cancelMapPicker()">← 취소</button>
+      <button class="btn-primary" id="map-confirm-btn" style="flex:2;display:none" onclick="confirmMapPlace()">이 곳으로 →</button>
     </div>
   </div>
 </div>
 
 <!-- ── 대기 화면 ── -->
 <div id="wait-screen" class="screen">
-  <div class="heart-icon">☕</div>
-  <div style="font-family:'Nanum Myeongjo',serif;font-size:1.4rem;font-weight:700;text-align:center;">
-    친구를 기다리는 중
+  <div class="page-header">
+    <div class="page-eyebrow">함께 떠나기</div>
+    <div class="page-title">친구를<br>기다리는 중<em>.</em></div>
   </div>
 
-  <div class="room-code-display">
-    <div class="room-code-label">초대 코드</div>
-    <div class="room-code-value" id="display-room-code">------</div>
+  <div class="code-display">
+    <div class="code-display-label">초대 코드</div>
+    <div class="code-display-value" id="display-room-code">------</div>
+    <div class="code-display-hint">이 코드를 친구에게 공유하세요</div>
   </div>
 
-  <p class="desc">친구에게 코드를 알려주세요<br>둘 다 준비되면 자동으로 시작돼요!</p>
-
-  <div class="players-wrap">
-    <div class="player-row">
-      <div class="player-dot me"></div>
-      <div class="player-name" id="my-name-display">나</div>
-      <div class="player-badge">✓ 준비됨</div>
+  <div class="players-list">
+    <div class="player-item">
+      <div class="player-avatar me" id="my-avatar">나</div>
+      <div class="player-name-text" id="my-name-display">나</div>
+      <div class="player-status ready">준비됨</div>
     </div>
-    <div class="player-row" id="opponent-row">
-      <div class="player-dot" id="opponent-dot"></div>
-      <div class="player-name" id="opponent-name-display">대기 중...</div>
-      <div class="player-badge" id="opponent-badge"></div>
+    <div class="player-item">
+      <div class="player-avatar empty" id="opponent-avatar">?</div>
+      <div class="player-name-text" id="opponent-name-display">대기 중...</div>
+      <div class="player-status" id="opponent-badge"></div>
     </div>
   </div>
 
-  <div class="waiting-anim" id="waiting-text">상대방 접속 대기 중...</div>
-  <button class="btn-outline" onclick="cancelRoom()" style="margin-top:8px;">취소</button>
+  <div class="wait-hint" id="waiting-text">친구가 코드를 입력하면 자동으로 시작돼요</div>
+  <button class="btn-secondary" onclick="cancelRoom()">취소</button>
 </div>
 
 <!-- ── 게임 화면 ── -->
 <div id="game-screen" class="screen">
-
-  <!-- 뷰 모드 전환 탭 -->
-  <div id="view-mode-bar">
-    <button class="view-btn active" data-mode="compass" onclick="setViewMode('compass')">🧭 나침반</button>
-    <button class="view-btn" data-mode="map" onclick="setViewMode('map')">🗺️ 지도</button>
-    <button class="view-btn" data-mode="overlay" onclick="setViewMode('overlay')">✨ 오버레이</button>
+  <div class="view-tabs" id="view-tabs">
+    <button class="vtab active" data-mode="compass" onclick="setViewMode('compass')">🧭 나침반</button>
+    <button class="vtab" data-mode="map" onclick="setViewMode('map')">🗺️ 지도</button>
+    <button class="vtab" data-mode="overlay" onclick="setViewMode('overlay')">✨ 오버레이</button>
   </div>
 
-  <div class="top-info">
-    <div class="distance-display">
-      <span id="dist-value">---</span><span class="unit" id="dist-unit"> m</span>
+  <div class="game-inner">
+    <div class="game-dist-area">
+      <div class="game-dist-num" id="dist-value">---</div>
+      <div class="game-dist-unit" id="dist-unit">미터</div>
+      <div class="game-dist-label">
+        <div class="pulse-dot"></div>
+        목적지까지
+      </div>
+      <div class="opponent-bar" id="opponent-bar">
+        <div class="opponent-bar-dot"></div>
+        <span id="opponent-dist">상대방 ---</span>
+      </div>
+      <button class="game-reset-btn" onclick="restartGame()">↺ 다시 뽑기</button>
+      <div id="debug-info"></div>
     </div>
-    <div class="distance-label"><span class="status-dot"></span>목적지까지</div>
-    <div class="opponent-info" id="opponent-info" style="display:none;">
-      <div class="opponent-dot"></div>
-      <span id="opponent-dist">상대방 ---m</span>
-    </div>
-    <button id="reset-btn" onclick="restartGame()">↺ 다시 뽑기</button>
-    <div id="debug-info"></div>
-  </div>
 
-  <!-- 나침반 뷰 -->
-  <div id="compass-view">
-    <div class="compass-wrap">
-      <div class="compass-ring"></div>
-      <div class="compass-inner">
-        <span class="cardinal n">N</span>
-        <span class="cardinal s">S</span>
-        <span class="cardinal e">E</span>
-        <span class="cardinal w">W</span>
+    <!-- 나침반 뷰 -->
+    <div id="compass-view">
+      <div class="arrow-stage">
+        <div class="arrow-guide"></div>
+        <span class="arrow-cardinal n">N</span>
+        <span class="arrow-cardinal s">S</span>
+        <span class="arrow-cardinal e">E</span>
+        <span class="arrow-cardinal w">W</span>
         <div id="arrow-container">
-          <svg class="arrow-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="50,8 62,55 50,48 38,55" fill="#ff3c5f"/>
-            <polygon points="50,92 62,55 50,62 38,55" fill="#2a1020"/>
-            <circle cx="50" cy="55" r="6" fill="#ff3c5f" opacity="0.5"/>
+          <svg class="arrow-svg" viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- 위쪽 화살표 (목적지 방향) -->
+            <polygon points="30,4 44,40 30,32 16,40" fill="#c0392b"/>
+            <!-- 아래쪽 (반대 방향) -->
+            <polygon points="30,96 44,60 30,68 16,60" fill="#d4cfc8"/>
+            <!-- 중심 원 -->
+            <circle cx="30" cy="50" r="5" fill="#1a1814"/>
+            <circle cx="30" cy="50" r="2.5" fill="#f7f4ef"/>
           </svg>
         </div>
-        <div class="center-dot"></div>
+        <div class="arrow-center"></div>
       </div>
     </div>
-  </div>
 
-  <!-- 지도 뷰 -->
-  <div id="game-map-view" style="display:none;">
-    <div id="game-map-container"></div>
-  </div>
+    <!-- 지도 뷰 -->
+    <div id="game-map-view">
+      <div id="game-map-container"></div>
+    </div>
 
-  <!-- 오버레이 뷰 -->
-  <div id="overlay-view" style="display:none;">
-    <div class="overlay-wrap">
-      <!-- 회전하는 지도 -->
-      <div id="overlay-map-container"></div>
-      <!-- 그 위에 나침반 오버레이 -->
-      <div class="overlay-compass">
-        <div class="compass-ring" style="opacity:0.4;"></div>
-        <div class="compass-inner">
-          <span class="cardinal n" style="color:rgba(232,228,220,0.5)">N</span>
-          <span class="cardinal s" style="color:rgba(232,228,220,0.5)">S</span>
-          <span class="cardinal e" style="color:rgba(232,228,220,0.5)">E</span>
-          <span class="cardinal w" style="color:rgba(232,228,220,0.5)">W</span>
-          <div id="overlay-arrow-container">
-            <svg class="arrow-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="50,8 62,55 50,48 38,55" fill="#ff3c5f"/>
-              <polygon points="50,92 62,55 50,62 38,55" fill="#2a1020"/>
-              <circle cx="50" cy="55" r="6" fill="#ff3c5f" opacity="0.5"/>
-            </svg>
+    <!-- 오버레이 뷰 -->
+    <div id="overlay-view">
+      <div class="overlay-wrap">
+        <div id="overlay-map-container"></div>
+        <div class="overlay-compass-layer">
+          <div class="arrow-stage" style="width:100%;height:100%">
+            <div class="arrow-guide"></div>
+            <div id="overlay-arrow-container">
+              <svg class="arrow-svg" viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="30,4 44,40 30,32 16,40" fill="#c0392b"/>
+                <polygon points="30,96 44,60 30,68 16,60" fill="#d4cfc8"/>
+                <circle cx="30" cy="50" r="5" fill="#1a1814"/>
+                <circle cx="30" cy="50" r="2.5" fill="#f7f4ef"/>
+              </svg>
+            </div>
+            <div class="arrow-center"></div>
           </div>
-          <div class="center-dot"></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="bottom-controls">
-    <button id="compass-btn" onclick="askCompassPermission()">📱 여기 눌러서 나침반 허용</button>
-    <div class="hint-text" id="hint-text">화살표 방향으로 걸어가세요</div>
-    <button id="test-toggle-btn" onclick="toggleDestination()">🔍 목적지 보기</button>
-    <div id="dest-box"></div>
+    <div class="game-bottom">
+      <button id="compass-perm-btn" onclick="askCompassPermission()">📱 나침반 허용하기</button>
+      <div class="game-hint" id="hint-text">화살표 방향으로 걸어가세요</div>
+      <button class="dest-toggle-btn" id="dest-toggle-btn" onclick="toggleDestination()">🔍 목적지 보기</button>
+      <div id="dest-box">
+        <div class="dest-name" id="dest-name"></div>
+        <div class="dest-addr" id="dest-addr"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- ── 도착 화면 ── -->
 <div id="arrival-screen" class="screen">
-  <div class="arrival-emoji" id="arrival-emoji">🎉</div>
-  <div class="arrival-title" id="arrival-title">도착했어요!</div>
-  <div id="winner-badge-wrap"></div>
-  <div class="place-reveal" id="place-name-reveal"></div>
-  <div class="place-address" id="place-address-reveal"></div>
-  <div class="btn-row">
-    <button class="btn-outline" onclick="openMaps()">지도 보기</button>
-    <button class="btn-outline" onclick="restartGame()">다시 뽑기</button>
+  <div class="arrival-emoji">🎉</div>
+  <div class="arrival-heading">도착<em>!</em></div>
+  <div id="winner-badge" style="display:none"></div>
+  <div id="arrival-place-name"></div>
+  <div id="arrival-place-addr"></div>
+  <div class="arrival-btns">
+    <button class="btn-secondary" style="flex:1" onclick="openMaps()">지도 보기</button>
+    <button class="btn-primary" style="flex:1" onclick="restartGame()">다시 뽑기</button>
   </div>
 </div>
 
-<!-- ── 채팅 패널 ── -->
+<!-- ── 채팅 ── -->
 <div id="chat-panel">
-  <div class="chat-header" onclick="toggleChat()">
-    <div class="chat-header-title">💬 채팅</div>
-    <div class="chat-close">✕</div>
+  <div class="chat-bar" onclick="toggleChat()">
+    <div class="chat-bar-title">채팅</div>
+    <div class="chat-bar-close">✕</div>
   </div>
   <div id="chat-messages"></div>
-  <div class="chat-input-wrap">
-    <input class="chat-text-input" id="chat-input" type="text" maxlength="100" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="chat-send-btn" onclick="sendChat()">전송</button>
+  <div class="chat-input-row">
+    <input class="chat-field" id="chat-input" type="text" maxlength="100" placeholder="메시지..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">보내기</button>
   </div>
 </div>
 
-<button id="chat-toggle-btn" onclick="toggleChat()">
+<button id="chat-fab" onclick="toggleChat()">
   💬
   <div id="chat-badge"></div>
 </button>
@@ -789,9 +1510,9 @@ let selectedRadius = 1000;
 let toastT = null;
 
 let roomCode = null;
-let myRole = null; // 'host' or 'guest'
+let myRole = null;
 let myId = Math.random().toString(36).substr(2, 8);
-let myNickname = localStorage.getItem('cafe_nickname') || '';
+let myNickname = localStorage.getItem('kkirikkiri_nick') || '';
 let isMulti = false;
 let roomRef = null;
 let roomListener = null;
@@ -801,13 +1522,41 @@ let unreadCount = 0;
 let chatOpen = false;
 let pendingAction = null;
 
+// ── 지도 ──
+let kakaoMap = null;
+let selectedMapPlace = null;
+let mapMarker = null;
+let mapAfterFn = null;
+let gameMap = null;
+let overlayMap = null;
+let gameMapMarkerMe = null;
+let gameMapMarkerDest = null;
+let currentViewMode = 'compass';
+
+// ── 화면 전환 ──
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  if (id === 'game-screen') startArrowLoop();
+};
+
+// ── 시작 화면 버튼 ──
+window.goSolo = function() { showScreen('solo-screen'); };
+window.goTogether = function() { showScreen('together-screen'); };
+
+// ── 반경 선택 ──
+window.selectRadius = function(btn) {
+  document.querySelectorAll('.radius-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedRadius = parseInt(btn.dataset.r);
+};
+
 // ── 닉네임 ──
 window.confirmNickname = function() {
   const val = document.getElementById('nickname-input').value.trim();
   if (!val) { showToast('닉네임을 입력해주세요'); return; }
   myNickname = val;
-  localStorage.setItem('cafe_nickname', val);
-  showScreen('start-screen');
+  localStorage.setItem('kkirikkiri_nick', val);
+  showScreen('together-screen');
   if (pendingAction) { pendingAction(); pendingAction = null; }
 };
 
@@ -835,15 +1584,13 @@ window.sendChat = function() {
   const msg = input.value.trim();
   if (!msg || !roomCode) return;
   input.value = '';
-  const chatRef = ref(db, `rooms/${roomCode}/chat`);
-  const newMsg = ref(db, `rooms/${roomCode}/chat/${Date.now()}_${myId}`);
-  set(newMsg, { id: myId, nickname: myNickname, text: msg, ts: Date.now() });
+  set(ref(db, `rooms/${roomCode}/chat/${Date.now()}_${myId}`),
+    { id: myId, nickname: myNickname, text: msg, ts: Date.now() });
 };
 
 function listenChat() {
   if (!roomCode) return;
-  const chatRef = ref(db, `rooms/${roomCode}/chat`);
-  chatListener = onValue(chatRef, snap => {
+  chatListener = onValue(ref(db, `rooms/${roomCode}/chat`), snap => {
     if (!snap.exists()) return;
     const msgs = document.getElementById('chat-messages');
     msgs.innerHTML = '';
@@ -852,16 +1599,15 @@ function listenChat() {
       const isMe = d.id === myId;
       const isSystem = d.id === 'system';
       const div = document.createElement('div');
-      div.className = `chat-msg ${isSystem ? 'system' : isMe ? 'me' : 'other'}`;
+      div.className = `cmsg ${isSystem ? 'system' : isMe ? 'me' : 'other'}`;
       if (!isSystem) {
-        div.innerHTML = `<div class="chat-nickname">${d.nickname}</div><div class="chat-bubble">${d.text}</div>`;
+        div.innerHTML = `<div class="cmsg-nick">${d.nickname}</div><div class="cmsg-bubble">${d.text}</div>`;
       } else {
-        div.innerHTML = `<div class="chat-bubble">${d.text}</div>`;
+        div.innerHTML = `<div class="cmsg-bubble">${d.text}</div>`;
       }
       msgs.appendChild(div);
     });
     msgs.scrollTop = msgs.scrollHeight;
-    // 채팅 닫혀있으면 뱃지
     if (!chatOpen) {
       unreadCount++;
       const badge = document.getElementById('chat-badge');
@@ -876,124 +1622,43 @@ function addSystemMsg(text) {
   set(ref(db, `rooms/${roomCode}/chat/${Date.now()}_system`), { id: 'system', text, ts: Date.now() });
 }
 
-// ── 지도 목적지 설정 ──
-let kakaoMap = null;
-let selectedMapPlace = null;
-let mapMarker = null;
-let mapAfterFn = null; // 지도에서 선택 후 실행할 함수
-
-window.openMapPicker = function(afterFn) {
-  mapAfterFn = afterFn || null;
-  selectedMapPlace = null;
-  document.getElementById('map-selected-info').style.display = 'none';
-  document.getElementById('map-confirm-btn').style.display = 'none';
-  showScreen('map-screen');
-
-  // 지도 초기화 (처음 한 번만)
-  setTimeout(() => {
-    if (!kakaoMap) {
-      const container = document.getElementById('kakao-map');
-      const options = {
-        center: new kakao.maps.LatLng(userLat || 37.5665, userLng || 126.9780),
-        level: 4,
-      };
-      kakaoMap = new kakao.maps.Map(container, options);
-
-      // 지도 클릭 이벤트
-      kakao.maps.event.addListener(kakaoMap, 'click', e => {
-        const lat = e.latLng.getLat();
-        const lng = e.latLng.getLng();
-        // 역지오코딩으로 주소 찾기
-        const geocoder = new kakao.maps.services.Geocoder();
-        geocoder.coord2Address(lng, lat, (result, status) => {
-          if (status === kakao.maps.services.Status.OK) {
-            const addr = result[0].road_address
-              ? result[0].road_address.address_name
-              : result[0].address.address_name;
-            setMapPlace({ name: '선택한 위치', address: addr, lat, lng });
-          } else {
-            setMapPlace({ name: '선택한 위치', address: '주소 정보 없음', lat, lng });
-          }
-        });
-      });
-    } else {
-      // 이미 만들어진 지도면 현재 위치로 이동
-      if (userLat) kakaoMap.setCenter(new kakao.maps.LatLng(userLat, userLng));
-    }
-  }, 100);
-};
-
-function setMapPlace(place) {
-  selectedMapPlace = place;
-  // 마커 표시
-  if (mapMarker) mapMarker.setMap(null);
-  mapMarker = new kakao.maps.Marker({
-    position: new kakao.maps.LatLng(place.lat, place.lng),
-    map: kakaoMap,
-  });
-  kakaoMap.panTo(new kakao.maps.LatLng(place.lat, place.lng));
-  // 정보 표시
-  document.getElementById('map-place-name').textContent = place.name;
-  document.getElementById('map-place-addr').textContent = place.address;
-  document.getElementById('map-selected-info').style.display = 'block';
-  document.getElementById('map-confirm-btn').style.display = 'block';
-}
-
-window.searchPlace = function() {
-  const keyword = document.getElementById('map-search-input').value.trim();
-  if (!keyword) return;
-  const ps = new kakao.maps.services.Places();
-  ps.keywordSearch(keyword, (data, status) => {
-    if (status !== kakao.maps.services.Status.OK || data.length === 0) {
-      showToast('검색 결과가 없어요');
-      return;
-    }
-    const p = data[0];
-    setMapPlace({
-      name: p.place_name,
-      address: p.road_address_name || p.address_name,
-      lat: parseFloat(p.y),
-      lng: parseFloat(p.x),
+// ── 방 만들기 ──
+window.createRoom = async function() {
+  askNickname(async () => {
+    if (!userLat) { showToast('📍 GPS를 먼저 잡아주세요'); return; }
+    showLoading(true, '방 만드는 중');
+    roomCode = generateCode();
+    myRole = 'host'; isMulti = true;
+    roomRef = ref(db, `rooms/${roomCode}`);
+    await set(roomRef, {
+      host: { id: myId, nickname: myNickname, lat: userLat, lng: userLng, ready: true, arrived: false },
+      guest: null, status: 'waiting', radius: selectedRadius, createdAt: Date.now(),
     });
-  }, { location: kakaoMap ? kakaoMap.getCenter() : null });
+    showLoading(false);
+    setupWaitScreen();
+    showScreen('wait-screen');
+    listenRoom();
+    listenChat();
+    addSystemMsg(`${myNickname}님이 방을 만들었어요 🏠`);
+  });
 };
 
-window.confirmMapPlace = async function() {
-  if (!selectedMapPlace) return;
-  targetPlace = selectedMapPlace;
-
-  if (mapAfterFn) {
-    // 방 만들기에서 왔으면 방 만들기로
-    mapAfterFn();
-  } else {
-    // 혼자 출발
-    startGameUI();
-  }
-};
-
-// 지도로 방 만들기
-window.createRoomWithMap = async function() {
+// ── 방 만들기 (지도) ──
+window.createRoomWithMap = function() {
   askNickname(() => {
     openMapPicker(async () => {
       if (!userLat) { showToast('📍 GPS를 먼저 잡아주세요'); return; }
-      showLoading(true, '방 만드는 중...');
+      showLoading(true, '방 만드는 중');
       roomCode = generateCode();
-      myRole = 'host';
-      isMulti = true;
-
+      myRole = 'host'; isMulti = true;
       roomRef = ref(db, `rooms/${roomCode}`);
       await set(roomRef, {
         host: { id: myId, nickname: myNickname, lat: userLat, lng: userLng, ready: true, arrived: false },
-        guest: null,
-        status: 'waiting',
-        radius: selectedRadius,
-        targetCafe: targetPlace, // 미리 목적지 저장
-        createdAt: Date.now(),
+        guest: null, status: 'waiting', radius: selectedRadius,
+        targetCafe: targetPlace, createdAt: Date.now(),
       });
-
       showLoading(false);
-      document.getElementById('display-room-code').textContent = roomCode;
-      document.getElementById('my-name-display').textContent = myNickname;
+      setupWaitScreen();
       showScreen('wait-screen');
       listenRoom();
       listenChat();
@@ -1003,177 +1668,26 @@ window.createRoomWithMap = async function() {
   });
 };
 
-// ── 뷰 모드 ──
-let currentViewMode = 'compass';
-let gameMap = null;
-let overlayMap = null;
-let gameMapMarkerMe = null;
-let gameMapMarkerDest = null;
-
-window.setViewMode = function(mode) {
-  currentViewMode = mode;
-  document.querySelectorAll('.view-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.mode === mode);
-  });
-  document.getElementById('compass-view').style.display = mode === 'compass' ? 'flex' : 'none';
-  document.getElementById('game-map-view').style.display = mode === 'map' ? 'flex' : 'none';
-  document.getElementById('overlay-view').style.display = mode === 'overlay' ? 'flex' : 'none';
-
-  if (mode === 'map' && !gameMap) initGameMap();
-  if (mode === 'overlay' && !overlayMap) initOverlayMap();
-  if (mode === 'map' && gameMap) updateGameMap();
-};
-
-function initGameMap() {
-  if (!userLat || !kakao) return;
-  const container = document.getElementById('game-map-container');
-  gameMap = new kakao.maps.Map(container, {
-    center: new kakao.maps.LatLng(userLat, userLng),
-    level: 4,
-  });
-  // 내 위치 마커
-  gameMapMarkerMe = new kakao.maps.Marker({
-    position: new kakao.maps.LatLng(userLat, userLng),
-    map: gameMap,
-    title: '나',
-  });
-  // 목적지 마커
-  if (targetPlace) {
-    gameMapMarkerDest = new kakao.maps.Marker({
-      position: new kakao.maps.LatLng(targetPlace.lat, targetPlace.lng),
-      map: gameMap,
-      title: targetPlace.name,
-    });
-    // 목적지 인포윈도우
-    const iw = new kakao.maps.InfoWindow({
-      content: `<div style="padding:4px 8px;font-size:11px;color:#333">${targetPlace.name}</div>`,
-    });
-    iw.open(gameMap, gameMapMarkerDest);
-  }
-  updateGameMap();
-}
-
-function updateGameMap() {
-  if (!gameMap || !userLat) return;
-  const myPos = new kakao.maps.LatLng(userLat, userLng);
-  if (gameMapMarkerMe) gameMapMarkerMe.setPosition(myPos);
-  gameMap.setCenter(myPos);
-}
-
-function initOverlayMap() {
-  if (!userLat || !kakao) return;
-  const container = document.getElementById('overlay-map-container');
-  overlayMap = new kakao.maps.Map(container, {
-    center: new kakao.maps.LatLng(userLat, userLng),
-    level: 3,
-    draggable: false,
-    scrollwheel: false,
-    disableDoubleClick: true,
-    disableDoubleClickZoom: true,
-  });
-  // 목적지 마커
-  if (targetPlace) {
-    new kakao.maps.Marker({
-      position: new kakao.maps.LatLng(targetPlace.lat, targetPlace.lng),
-      map: overlayMap,
-    });
-  }
-}
-
-function updateOverlayMap() {
-  if (!overlayMap || !userLat) return;
-  // 지도 중심을 내 위치로
-  overlayMap.setCenter(new kakao.maps.LatLng(userLat, userLng));
-  // 지도 컨테이너를 방향 반대로 회전 (지도가 실제 방향을 유지하도록)
-  const container = document.getElementById('overlay-map-container');
-  container.style.transform = `rotate(${-deviceHeading}deg)`;
-  // 오버레이 화살표는 목적지 방향으로
-  if (targetPlace) {
-    const targetAngle = bearing(userLat, userLng, targetPlace.lat, targetPlace.lng) - deviceHeading;
-    let diff = targetAngle - currentDisplayAngle;
-    if (diff > 180) diff -= 360;
-    if (diff < -180) diff += 360;
-    currentDisplayAngle += diff * 0.12;
-    document.getElementById('overlay-arrow-container').style.transform = `rotate(${currentDisplayAngle}deg)`;
-  }
-}
-
-// ── 반경 선택 ──
-window.selectRadius = function(btn) {
-  document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedRadius = parseInt(btn.dataset.r);
-};
-
-// ── 방 코드 생성 ──
-function generateCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
-
-// ── 방 만들기 ──
-window.createRoom = async function() {
-  askNickname(async () => {
-    if (!userLat) { showToast('📍 GPS를 먼저 잡아주세요'); return; }
-    showLoading(true, '방 만드는 중...');
-    roomCode = generateCode();
-    myRole = 'host';
-    isMulti = true;
-
-    roomRef = ref(db, `rooms/${roomCode}`);
-    await set(roomRef, {
-      host: { id: myId, nickname: myNickname, lat: userLat, lng: userLng, ready: true, arrived: false },
-      guest: null,
-      status: 'waiting',
-      radius: selectedRadius,
-      createdAt: Date.now(),
-    });
-
-    showLoading(false);
-    document.getElementById('display-room-code').textContent = roomCode;
-    document.getElementById('my-name-display').textContent = myNickname;
-    showScreen('wait-screen');
-    listenRoom();
-    listenChat();
-    addSystemMsg(`${myNickname}님이 방을 만들었어요 🏠`);
-  });
-};
-
 // ── 방 참가 ──
 window.joinRoom = async function() {
   const code = document.getElementById('room-code-input').value.trim().toUpperCase();
   if (code.length !== 6) { showToast('6자리 코드를 입력해주세요'); return; }
   if (!userLat) { showToast('📍 GPS를 먼저 잡아주세요'); return; }
-
   askNickname(async () => {
-    showLoading(true, '방 찾는 중...');
-    roomCode = code;
-    myRole = 'guest';
-    isMulti = true;
-
+    showLoading(true, '방 찾는 중');
+    roomCode = code; myRole = 'guest'; isMulti = true;
     roomRef = ref(db, `rooms/${roomCode}`);
     const snap = await get(roomRef);
-    if (!snap.exists()) {
-      showLoading(false);
-      showToast('방을 찾을 수 없어요 😢');
-      return;
-    }
+    if (!snap.exists()) { showLoading(false); showToast('방을 찾을 수 없어요'); return; }
     const data = snap.val();
-    if (data.status !== 'waiting') {
-      showLoading(false);
-      showToast('이미 시작된 방이에요');
-      return;
-    }
-
+    if (data.status !== 'waiting') { showLoading(false); showToast('이미 시작된 방이에요'); return; }
     selectedRadius = data.radius;
     await update(roomRef, {
       guest: { id: myId, nickname: myNickname, lat: userLat, lng: userLng, ready: true, arrived: false },
       status: 'ready',
     });
-
     showLoading(false);
-    document.getElementById('display-room-code').textContent = roomCode;
-    document.getElementById('my-name-display').textContent = myNickname;
+    setupWaitScreen();
     showScreen('wait-screen');
     listenRoom();
     listenChat();
@@ -1181,49 +1695,48 @@ window.joinRoom = async function() {
   });
 };
 
+function setupWaitScreen() {
+  document.getElementById('display-room-code').textContent = roomCode;
+  document.getElementById('my-name-display').textContent = myNickname;
+  const initials = myNickname.charAt(0).toUpperCase();
+  document.getElementById('my-avatar').textContent = initials;
+}
+
 // ── 방 취소 ──
 window.cancelRoom = async function() {
-  if (roomRef) {
-    off(roomRef);
-    if (myRole === 'host') await remove(roomRef);
-  }
+  if (roomRef) { off(roomRef); if (myRole === 'host') await remove(roomRef); }
   roomCode = null; myRole = null; isMulti = false; roomRef = null;
-  showScreen('start-screen');
+  showScreen('together-screen');
 };
 
-// ── 방 상태 리스닝 ──
+// ── 방 리스닝 ──
 function listenRoom() {
   if (roomListener) off(roomRef);
   roomListener = onValue(roomRef, async snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-
-    // 대기 화면 - 상대방 접속 표시
     if (document.getElementById('wait-screen').classList.contains('active')) {
       const opponent = myRole === 'host' ? data.guest : data.host;
       if (opponent) {
-        document.getElementById('opponent-dot').className = 'player-dot other';
-        document.getElementById('opponent-name-display').textContent = opponent.nickname || (myRole === 'host' ? '게스트' : '방장');
-        document.getElementById('opponent-badge').textContent = '✓ 준비됨';
-        document.getElementById('waiting-text').textContent = '🎉 모두 준비됐어요! 출발합니다...';
+        const oppAvatar = document.getElementById('opponent-avatar');
+        oppAvatar.className = 'player-avatar other';
+        oppAvatar.textContent = opponent.nickname.charAt(0).toUpperCase();
+        document.getElementById('opponent-name-display').textContent = opponent.nickname;
+        document.getElementById('opponent-badge').textContent = '준비됨';
+        document.getElementById('opponent-badge').className = 'player-status ready';
+        document.getElementById('waiting-text').textContent = '🎉 모두 준비됐어요! 곧 출발합니다';
       }
-
-      // 둘 다 준비되면 게임 시작
       if (data.status === 'ready' && data.host && data.guest) {
         setTimeout(() => startMultiGame(data), 1500);
       }
     }
-
-    // 게임 중 - 상대방 위치 업데이트
     if (document.getElementById('game-screen').classList.contains('active')) {
       const opponent = myRole === 'host' ? data.guest : data.host;
       if (opponent && targetPlace) {
         const opDist = haversine(opponent.lat, opponent.lng, targetPlace.lat, targetPlace.lng);
-        document.getElementById('opponent-dist').textContent = `상대방 ${opDist < 1000 ? Math.round(opDist)+'m' : (opDist/1000).toFixed(1)+'km'}`;
-        document.getElementById('opponent-info').style.display = 'flex';
+        document.getElementById('opponent-dist').textContent =
+          `상대방 ${opDist < 1000 ? Math.round(opDist)+'m' : (opDist/1000).toFixed(1)+'km'}`;
       }
-
-      // 상대방 도착
       if (opponent && opponent.arrived && !opponentArrived) {
         opponentArrived = true;
         showToast('😮 상대방이 먼저 도착했어요!');
@@ -1236,136 +1749,218 @@ function listenRoom() {
 async function startMultiGame(data) {
   let cafe = null;
   if (myRole === 'host') {
-    // 이미 지도로 목적지 설정했으면 그걸 사용
     if (targetPlace) {
       cafe = targetPlace;
       await update(roomRef, { targetCafe: cafe, status: 'playing' });
     } else if (data.targetCafe) {
-      cafe = data.targetCafe;
-      targetPlace = cafe;
+      cafe = data.targetCafe; targetPlace = cafe;
       await update(roomRef, { status: 'playing' });
     } else {
-      showLoading(true, '카페 검색 중... ☕');
-      const allCafes = await fetchNearbyCafes(userLat, userLng, selectedRadius);
+      showLoading(true, '카페 검색 중');
+      const all = await fetchNearbyCafes(userLat, userLng, selectedRadius);
       showLoading(false);
       const { min, max } = RADIUS_CONFIG[selectedRadius];
-      const filtered = allCafes.filter(c => {
-        const d = haversine(userLat, userLng, c.lat, c.lng);
-        return d >= min && d <= max;
-      });
-      if (filtered.length === 0) { showToast('주변에 카페가 없어요 ㅠㅠ'); return; }
+      const filtered = all.filter(c => { const d = haversine(userLat, userLng, c.lat, c.lng); return d >= min && d <= max; });
+      if (filtered.length === 0) { showToast('주변에 카페가 없어요'); return; }
       cafe = filtered[Math.floor(Math.random() * filtered.length)];
       await update(roomRef, { targetCafe: cafe, status: 'playing' });
       targetPlace = cafe;
     }
   } else {
-    // 게스트는 호스트가 선택한 카페 사용
-    showLoading(true, '카페 정보 불러오는 중...');
+    showLoading(true, '카페 정보 불러오는 중');
     let tries = 0;
     while (!cafe && tries < 20) {
       const snap = await get(roomRef);
-      const d = snap.val();
-      if (d.targetCafe) { cafe = d.targetCafe; break; }
+      if (snap.val().targetCafe) { cafe = snap.val().targetCafe; break; }
       await new Promise(r => setTimeout(r, 500));
       tries++;
     }
     showLoading(false);
-    if (!cafe) { showToast('카페 정보를 못 받았어요 ㅠㅠ'); return; }
+    if (!cafe) { showToast('카페 정보를 못 받았어요'); return; }
     targetPlace = cafe;
   }
-
   opponentArrived = false;
   startGameUI();
 }
 
-// ── 혼자 시작 ──
+// ── 솔로 시작 ──
 window.startSolo = async function() {
   isMulti = false;
   if (!userLat) {
-    showLoading(true, 'GPS 위치 확인 중...');
+    showLoading(true, 'GPS 확인 중');
     try {
       const pos = await getPosition();
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-    } catch(e) {
-      showLoading(false);
-      showToast('📍 GPS 권한을 허용해주세요');
-      return;
-    }
+      userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+    } catch(e) { showLoading(false); showToast('📍 GPS 권한을 허용해주세요'); return; }
     showLoading(false);
   }
-
-  showLoading(true, '주변 카페 검색 중... ☕');
-  const allCafes = await fetchNearbyCafes(userLat, userLng, selectedRadius);
+  showLoading(true, '카페 검색 중');
+  const all = await fetchNearbyCafes(userLat, userLng, selectedRadius);
   showLoading(false);
-
   const { min, max } = RADIUS_CONFIG[selectedRadius];
-  const cafeList = allCafes.filter(c => {
-    const d = haversine(userLat, userLng, c.lat, c.lng);
-    return d >= min && d <= max;
-  });
-
+  const cafeList = all.filter(c => { const d = haversine(userLat, userLng, c.lat, c.lng); return d >= min && d <= max; });
   const dbg = document.getElementById('debug-info');
-  if (dbg) {
-    dbg.textContent = `전체 ${allCafes.length}개 → 필터후 ${cafeList.length}개`;
-    dbg.style.opacity = '1';
-    setTimeout(() => dbg.style.opacity = '0', 3000);
-  }
-
-  if (cafeList.length === 0) {
-    showToast(`${min}m~${max/1000}km 내 카페가 없어요. 반경을 늘려보세요!`);
-    return;
-  }
-
+  dbg.textContent = `${all.length}개 검색 → ${cafeList.length}개 필터됨`;
+  dbg.style.opacity = '1';
+  setTimeout(() => dbg.style.opacity = '0', 3000);
+  if (cafeList.length === 0) { showToast('주변 카페가 없어요. 반경을 늘려보세요!'); return; }
   targetPlace = cafeList[Math.floor(Math.random() * cafeList.length)];
   startGameUI();
 };
 
 // ── 게임 UI 시작 ──
 function startGameUI() {
-  arrived = false;
-  nearAlerted = false;
-  nearNameVisible = false;
-  destVisible = false;
-
+  arrived = false; nearAlerted = false; nearNameVisible = false; destVisible = false;
   document.getElementById('near-alert').style.display = 'none';
   document.getElementById('near-name-box').style.display = 'none';
-  document.getElementById('near-reveal-btn').textContent = '☕ 카페 이름 보기';
+  document.getElementById('near-reveal-btn').textContent = '카페 이름 확인하기';
   document.getElementById('dest-box').style.display = 'none';
-  document.getElementById('test-toggle-btn').textContent = '🔍 목적지 보기';
-  document.getElementById('test-toggle-btn').classList.remove('revealed');
-  document.getElementById('opponent-info').style.display = isMulti ? 'flex' : 'none';
-  document.getElementById('chat-toggle-btn').style.display = isMulti ? 'flex' : 'none';
-  document.getElementById('chat-toggle-btn').style.alignItems = 'center';
-  document.getElementById('chat-toggle-btn').style.justifyContent = 'center';
-
-  showScreen('game-screen');
-  document.getElementById('view-mode-bar').style.display = 'flex';
+  document.getElementById('dest-toggle-btn').textContent = '🔍 목적지 보기';
+  document.getElementById('dest-toggle-btn').classList.remove('revealed');
+  document.getElementById('opponent-bar').style.display = isMulti ? 'flex' : 'none';
+  const fab = document.getElementById('chat-fab');
+  fab.style.display = isMulti ? 'flex' : 'none';
+  fab.style.alignItems = 'center';
+  fab.style.justifyContent = 'center';
+  document.getElementById('view-tabs').style.display = 'flex';
   setViewMode('compass');
+  showScreen('game-screen');
   startWatch();
   requestCompass();
   updateUI();
 }
 
+// ── 지도 목적지 선택 ──
+window.openMapPicker = function(afterFn) {
+  mapAfterFn = afterFn;
+  selectedMapPlace = null;
+  document.getElementById('map-place-card').style.display = 'none';
+  document.getElementById('map-confirm-btn').style.display = 'none';
+  showScreen('map-screen');
+  setTimeout(() => {
+    if (!kakaoMap) {
+      const container = document.getElementById('kakao-map');
+      kakaoMap = new kakao.maps.Map(container, {
+        center: new kakao.maps.LatLng(userLat || 37.5665, userLng || 126.9780),
+        level: 4,
+      });
+      kakao.maps.event.addListener(kakaoMap, 'click', e => {
+        const lat = e.latLng.getLat(), lng = e.latLng.getLng();
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.coord2Address(lng, lat, (result, status) => {
+          const addr = status === kakao.maps.services.Status.OK
+            ? (result[0].road_address?.address_name || result[0].address.address_name)
+            : '주소 정보 없음';
+          setMapPlace({ name: '선택한 위치', address: addr, lat, lng });
+        });
+      });
+    } else {
+      if (userLat) kakaoMap.setCenter(new kakao.maps.LatLng(userLat, userLng));
+    }
+  }, 100);
+};
+
+window.cancelMapPicker = function() {
+  showScreen(isMulti ? 'together-screen' : 'solo-screen');
+};
+
+function setMapPlace(place) {
+  selectedMapPlace = place;
+  if (mapMarker) mapMarker.setMap(null);
+  mapMarker = new kakao.maps.Marker({ position: new kakao.maps.LatLng(place.lat, place.lng), map: kakaoMap });
+  kakaoMap.panTo(new kakao.maps.LatLng(place.lat, place.lng));
+  document.getElementById('map-place-name').textContent = place.name;
+  document.getElementById('map-place-addr').textContent = place.address;
+  document.getElementById('map-place-card').style.display = 'block';
+  document.getElementById('map-confirm-btn').style.display = 'block';
+}
+
+window.searchPlace = function() {
+  const keyword = document.getElementById('map-search-input').value.trim();
+  if (!keyword) return;
+  const ps = new kakao.maps.services.Places();
+  ps.keywordSearch(keyword, (data, status) => {
+    if (status !== kakao.maps.services.Status.OK || data.length === 0) { showToast('검색 결과가 없어요'); return; }
+    const p = data[0];
+    setMapPlace({ name: p.place_name, address: p.road_address_name || p.address_name, lat: parseFloat(p.y), lng: parseFloat(p.x) });
+  });
+};
+
+window.confirmMapPlace = function() {
+  if (!selectedMapPlace) return;
+  targetPlace = selectedMapPlace;
+  if (mapAfterFn) { mapAfterFn(); mapAfterFn = null; }
+  else startGameUI();
+};
+
+// ── 뷰 모드 ──
+window.setViewMode = function(mode) {
+  currentViewMode = mode;
+  document.querySelectorAll('.vtab').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById('compass-view').style.display = mode === 'compass' ? 'flex' : 'none';
+  document.getElementById('game-map-view').style.display = mode === 'map' ? 'flex' : 'none';
+  document.getElementById('overlay-view').style.display = mode === 'overlay' ? 'flex' : 'none';
+  if (mode === 'map' && !gameMap) initGameMap();
+  if (mode === 'overlay' && !overlayMap) initOverlayMap();
+  if (mode === 'map' && gameMap) updateGameMap();
+};
+
+function initGameMap() {
+  if (!userLat) return;
+  const container = document.getElementById('game-map-container');
+  gameMap = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(userLat, userLng), level: 4 });
+  gameMapMarkerMe = new kakao.maps.Marker({ position: new kakao.maps.LatLng(userLat, userLng), map: gameMap, title: '나' });
+  if (targetPlace) {
+    gameMapMarkerDest = new kakao.maps.Marker({ position: new kakao.maps.LatLng(targetPlace.lat, targetPlace.lng), map: gameMap });
+    const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:4px 8px;font-size:11px;color:#333">${targetPlace.name}</div>` });
+    iw.open(gameMap, gameMapMarkerDest);
+  }
+}
+
+function updateGameMap() {
+  if (!gameMap || !userLat) return;
+  const pos = new kakao.maps.LatLng(userLat, userLng);
+  if (gameMapMarkerMe) gameMapMarkerMe.setPosition(pos);
+  gameMap.setCenter(pos);
+}
+
+function initOverlayMap() {
+  if (!userLat) return;
+  const container = document.getElementById('overlay-map-container');
+  overlayMap = new kakao.maps.Map(container, {
+    center: new kakao.maps.LatLng(userLat, userLng), level: 3,
+    draggable: false, scrollwheel: false,
+  });
+  if (targetPlace) new kakao.maps.Marker({ position: new kakao.maps.LatLng(targetPlace.lat, targetPlace.lng), map: overlayMap });
+}
+
+function updateOverlayMap() {
+  if (!overlayMap || !userLat) return;
+  overlayMap.setCenter(new kakao.maps.LatLng(userLat, userLng));
+  document.getElementById('overlay-map-container').style.transform = `rotate(${-deviceHeading}deg)`;
+  if (targetPlace) {
+    const ta = bearing(userLat, userLng, targetPlace.lat, targetPlace.lng) - deviceHeading;
+    let diff = ta - currentDisplayAngle;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    currentDisplayAngle += diff * 0.12;
+    document.getElementById('overlay-arrow-container').style.transform = `rotate(${currentDisplayAngle}deg)`;
+  }
+}
+
 // ── 카카오 API ──
 async function fetchNearbyCafes(lat, lng, radius) {
   try {
-    let allDocs = [];
+    let all = [];
     for (let page = 1; page <= 3; page++) {
       const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=CE7&x=${lng}&y=${lat}&radius=${radius}&sort=distance&size=15&page=${page}`;
       const res = await fetch(url, { headers: { 'Authorization': `KakaoAK ${KAKAO_KEY}` } });
       const data = await res.json();
-      if (!data.documents || data.documents.length === 0) break;
-      allDocs = allDocs.concat(data.documents);
+      if (!data.documents?.length) break;
+      all = all.concat(data.documents);
       if (data.meta.is_end) break;
     }
-    return allDocs.map(d => ({
-      name: d.place_name,
-      area: '주변',
-      address: d.road_address_name || d.address_name,
-      lat: parseFloat(d.y),
-      lng: parseFloat(d.x),
-    }));
+    return all.map(d => ({ name: d.place_name, area: '주변', address: d.road_address_name || d.address_name, lat: parseFloat(d.y), lng: parseFloat(d.x) }));
   } catch(e) { return []; }
 }
 
@@ -1381,13 +1976,10 @@ function startWatch() {
   if (watchId) navigator.geolocation.clearWatch(watchId);
   watchId = navigator.geolocation.watchPosition(
     pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
+      userLat = pos.coords.latitude; userLng = pos.coords.longitude;
       updateUI();
-      // 멀티일 때 내 위치 Firebase에 업데이트
       if (isMulti && roomRef) {
-        const myKey = myRole === 'host' ? 'host' : 'guest';
-        update(ref(db, `rooms/${roomCode}/${myKey}`), { lat: userLat, lng: userLng });
+        update(ref(db, `rooms/${roomCode}/${myRole === 'host' ? 'host' : 'guest'}`), { lat: userLat, lng: userLng });
       }
     },
     () => showToast('GPS 신호가 약해요'),
@@ -1397,14 +1989,13 @@ function startWatch() {
 
 // ── 나침반 ──
 function requestCompass() {
-  if (typeof DeviceOrientationEvent !== 'undefined' &&
-      typeof DeviceOrientationEvent.requestPermission === 'function') {
-    document.getElementById('compass-btn').style.display = 'block';
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    document.getElementById('compass-perm-btn').style.display = 'block';
     document.getElementById('hint-text').style.display = 'none';
   } else {
     window.addEventListener('deviceorientationabsolute', handleOrientation, true);
     window.addEventListener('deviceorientation', handleOrientation, true);
-    document.getElementById('compass-btn').style.display = 'none';
+    document.getElementById('compass-perm-btn').style.display = 'none';
     document.getElementById('hint-text').style.display = 'block';
   }
   if (simulInterval) clearInterval(simulInterval);
@@ -1412,19 +2003,15 @@ function requestCompass() {
 }
 
 window.askCompassPermission = function() {
-  DeviceOrientationEvent.requestPermission()
-    .then(r => {
-      if (r === 'granted') {
-        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-        window.addEventListener('deviceorientation', handleOrientation, true);
-        document.getElementById('compass-btn').style.display = 'none';
-        document.getElementById('hint-text').style.display = 'block';
-        if (simulInterval) { clearInterval(simulInterval); simulInterval = null; }
-      } else {
-        showToast('나침반 권한이 거부됐어요 ㅠㅠ');
-      }
-    })
-    .catch(() => showToast('나침반 권한 요청 실패'));
+  DeviceOrientationEvent.requestPermission().then(r => {
+    if (r === 'granted') {
+      window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+      window.addEventListener('deviceorientation', handleOrientation, true);
+      document.getElementById('compass-perm-btn').style.display = 'none';
+      document.getElementById('hint-text').style.display = 'block';
+      if (simulInterval) { clearInterval(simulInterval); simulInterval = null; }
+    } else showToast('나침반 권한이 거부됐어요');
+  }).catch(() => showToast('나침반 권한 요청 실패'));
 };
 
 function handleOrientation(e) {
@@ -1442,12 +2029,10 @@ function handleOrientation(e) {
 
 // ── 수학 ──
 function haversine(a, b, c, d) {
-  const R = 6371000;
-  const dL = (c-a)*Math.PI/180, dG = (d-b)*Math.PI/180;
+  const R = 6371000, dL = (c-a)*Math.PI/180, dG = (d-b)*Math.PI/180;
   const x = Math.sin(dL/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2;
   return R*2*Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
 }
-
 function bearing(a, b, c, d) {
   const dG = (d-b)*Math.PI/180;
   const y = Math.sin(dG)*Math.cos(c*Math.PI/180);
@@ -1455,12 +2040,12 @@ function bearing(a, b, c, d) {
   return ((Math.atan2(y,x)*180/Math.PI)+360)%360;
 }
 
-// ── UI ──
+// ── UI 업데이트 ──
 function updateUI() {
   if (!userLat || !targetPlace || arrived) return;
   const dist = haversine(userLat, userLng, targetPlace.lat, targetPlace.lng);
   document.getElementById('dist-value').textContent = dist < 1000 ? Math.round(dist) : (dist/1000).toFixed(1);
-  document.getElementById('dist-unit').textContent = dist < 1000 ? ' m' : ' km';
+  document.getElementById('dist-unit').textContent = dist < 1000 ? '미터' : '킬로미터';
   if (dist <= NEAR_DISTANCE && !nearAlerted) { nearAlerted = true; showNearAlert(); }
   if (dist <= ARRIVAL_DISTANCE) showArrival();
 }
@@ -1469,25 +2054,23 @@ function startArrowLoop() {
   if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
   function loop() {
     if (!userLat || !targetPlace || arrived) { arrowAnimFrame = requestAnimationFrame(loop); return; }
-    const targetAngle = bearing(userLat, userLng, targetPlace.lat, targetPlace.lng) - deviceHeading;
-    let diff = targetAngle - currentDisplayAngle;
+    const ta = bearing(userLat, userLng, targetPlace.lat, targetPlace.lng) - deviceHeading;
+    let diff = ta - currentDisplayAngle;
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
     currentDisplayAngle += diff * 0.12;
-    // 나침반 뷰 화살표
     document.getElementById('arrow-container').style.transform = `rotate(${currentDisplayAngle}deg)`;
-    // 오버레이 뷰 업데이트
     if (currentViewMode === 'overlay') updateOverlayMap();
-    // 지도 뷰 업데이트 (가끔만)
     if (currentViewMode === 'map' && Math.random() < 0.05) updateGameMap();
     arrowAnimFrame = requestAnimationFrame(loop);
   }
   loop();
 }
 
+// ── 근접/도착 ──
 function showNearAlert() {
   document.getElementById('near-alert').style.display = 'flex';
-  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  if (navigator.vibrate) navigator.vibrate([200,100,200]);
 }
 
 window.toggleNearName = function() {
@@ -1495,21 +2078,22 @@ window.toggleNearName = function() {
   const box = document.getElementById('near-name-box');
   const btn = document.getElementById('near-reveal-btn');
   if (nearNameVisible && targetPlace) {
-    box.innerHTML = `☕ ${targetPlace.name}<br><span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(74,222,128,0.6)">${targetPlace.address}</span>`;
+    box.innerHTML = `${targetPlace.name}<br><span style="font-size:0.62rem;color:var(--muted)">${targetPlace.address}</span>`;
     box.style.display = 'block';
-    btn.textContent = '🙈 숨기기';
+    btn.textContent = '숨기기';
   } else {
     box.style.display = 'none';
-    btn.textContent = '☕ 카페 이름 보기';
+    btn.textContent = '카페 이름 확인하기';
   }
 };
 
 window.toggleDestination = function() {
   destVisible = !destVisible;
   const box = document.getElementById('dest-box');
-  const btn = document.getElementById('test-toggle-btn');
+  const btn = document.getElementById('dest-toggle-btn');
   if (destVisible && targetPlace) {
-    box.innerHTML = `📍 ${targetPlace.name}<br><span style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted)">${targetPlace.address}</span>`;
+    document.getElementById('dest-name').textContent = targetPlace.name;
+    document.getElementById('dest-addr').textContent = targetPlace.address;
     box.style.display = 'block';
     btn.textContent = '🙈 숨기기';
     btn.classList.add('revealed');
@@ -1526,28 +2110,18 @@ function showArrival() {
   if (simulInterval) clearInterval(simulInterval);
   if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
   document.getElementById('near-alert').style.display = 'none';
-
-  // 멀티일 때 Firebase에 도착 알림
   if (isMulti && roomRef) {
-    const myKey = myRole === 'host' ? 'host' : 'guest';
-    update(ref(db, `rooms/${roomCode}/${myKey}`), { arrived: true });
+    update(ref(db, `rooms/${roomCode}/${myRole === 'host' ? 'host' : 'guest'}`), { arrived: true });
     addSystemMsg(`🎉 ${myNickname}님이 도착했어요!`);
   }
-
-  document.getElementById('place-name-reveal').textContent = targetPlace.name;
-  document.getElementById('place-address-reveal').textContent = targetPlace.address;
-
-  const badgeWrap = document.getElementById('winner-badge-wrap');
+  document.getElementById('arrival-place-name').textContent = targetPlace.name;
+  document.getElementById('arrival-place-addr').textContent = targetPlace.address;
+  const badge = document.getElementById('winner-badge');
   if (isMulti) {
-    if (!opponentArrived) {
-      badgeWrap.innerHTML = '<div class="winner-badge win">🏆 내가 먼저 도착!</div>';
-    } else {
-      badgeWrap.innerHTML = '<div class="winner-badge lose">💙 상대방이 먼저 도착했어요</div>';
-    }
-  } else {
-    badgeWrap.innerHTML = '';
-  }
-
+    badge.style.display = 'block';
+    if (!opponentArrived) { badge.textContent = '🏆 내가 먼저 도착!'; badge.className = 'win'; }
+    else { badge.textContent = '💙 상대방이 먼저 도착했어요'; badge.className = 'lose'; }
+  } else { badge.style.display = 'none'; }
   showScreen('arrival-screen');
   launchConfetti();
 }
@@ -1558,88 +2132,79 @@ window.openMaps = function() {
 };
 
 window.restartGame = function() {
-  arrived = false;
-  nearAlerted = false;
-  opponentArrived = false;
+  arrived = false; nearAlerted = false; opponentArrived = false;
   stopConfetti();
-  document.getElementById('near-alert').style.display = 'none';
   if (arrowAnimFrame) cancelAnimationFrame(arrowAnimFrame);
+  document.getElementById('near-alert').style.display = 'none';
+  document.getElementById('view-tabs').style.display = 'none';
+  document.getElementById('chat-fab').style.display = 'none';
+  document.getElementById('chat-panel').classList.remove('open');
+  document.getElementById('chat-messages').innerHTML = '';
+  chatOpen = false; unreadCount = 0;
+  gameMap = null; overlayMap = null;
   if (isMulti && roomRef) { off(roomRef); remove(roomRef); }
   roomCode = null; myRole = null; isMulti = false; roomRef = null;
-  document.getElementById('view-mode-bar').style.display = 'none';
-  gameMap = null; overlayMap = null;
-  gameMapMarkerMe = null; gameMapMarkerDest = null;
-  currentViewMode = 'compass';
-  chatOpen = false; unreadCount = 0;
-  document.getElementById('chat-panel').classList.remove('open');
-  document.getElementById('chat-toggle-btn').style.display = 'none';
-  document.getElementById('chat-messages').innerHTML = '';
   showScreen('start-screen');
 };
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  if (id === 'game-screen') startArrowLoop();
-}
-
-function showLoading(show, txt) {
-  document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
-  if (txt) document.getElementById('loader-text').textContent = txt;
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.display = 'block';
-  if (toastT) clearTimeout(toastT);
-  toastT = setTimeout(() => t.style.display = 'none', 3200);
+// ── 코드 생성 ──
+function generateCode() {
+  return Array.from({length:6}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
 }
 
 // ── GPS 워밍업 ──
 function initGPS() {
   if (!navigator.geolocation) return;
-  const statusEl = document.getElementById('gps-status');
-  const coordEl = document.getElementById('gps-coords');
-
+  const dot = document.getElementById('gps-dot');
+  const status = document.getElementById('gps-status');
+  const coords = document.getElementById('gps-coords');
   navigator.geolocation.getCurrentPosition(
     pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-      if (statusEl) { statusEl.textContent = '📍 위치 확인됨'; statusEl.style.color = 'var(--green)'; }
-      if (coordEl) coordEl.textContent = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+      userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+      dot.className = 'gps-dot ok';
+      status.textContent = '위치 확인됨';
+      coords.textContent = `${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
     },
-    () => {
-      if (statusEl) { statusEl.textContent = '⚠️ GPS 권한을 허용해주세요'; statusEl.style.color = 'var(--accent)'; }
-    },
+    () => { dot.className = 'gps-dot err'; status.textContent = 'GPS 권한을 허용해주세요'; },
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
   );
-
   navigator.geolocation.watchPosition(
     pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-      if (statusEl) { statusEl.textContent = '📍 위치 확인됨'; statusEl.style.color = 'var(--green)'; }
-      if (coordEl) coordEl.textContent = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+      userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+      dot.className = 'gps-dot ok';
+      status.textContent = '위치 확인됨';
+      coords.textContent = `${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
     },
     () => {},
     { enableHighAccuracy: true, maximumAge: 0 }
   );
 }
-
 window.addEventListener('load', initGPS);
+
+// ── 로딩/토스트 ──
+function showLoading(show, txt) {
+  document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+  if (txt) document.getElementById('loader-label').textContent = txt;
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  if (toastT) clearTimeout(toastT);
+  toastT = setTimeout(() => t.style.display = 'none', 3000);
+}
 
 // ── 컨페티 ──
 let confettiAF = null, particles = [];
-
 function launchConfetti() {
   const cv = document.getElementById('confetti-canvas');
   const ctx = cv.getContext('2d');
   cv.width = window.innerWidth; cv.height = window.innerHeight;
-  const colors = ['#ff3c5f','#f5c842','#fff','#ff9500','#ff6b9d'];
-  particles = Array.from({length:130}, () => ({
-    x:Math.random()*cv.width, y:-10,
-    vx:(Math.random()-.5)*3, vy:Math.random()*4+2,
-    sz:Math.random()*8+4, col:colors[Math.floor(Math.random()*colors.length)],
-    rot:Math.random()*360, rs:(Math.random()-.5)*5,
+  const colors = ['#c0392b','#1a1814','#92741a','#d4cfc8','#e8e3db'];
+  particles = Array.from({length:120}, () => ({
+    x: Math.random()*cv.width, y: -10,
+    vx: (Math.random()-.5)*3, vy: Math.random()*4+2,
+    sz: Math.random()*7+3, col: colors[Math.floor(Math.random()*colors.length)],
+    rot: Math.random()*360, rs: (Math.random()-.5)*5,
   }));
   (function draw() {
     ctx.clearRect(0,0,cv.width,cv.height);
@@ -1653,7 +2218,6 @@ function launchConfetti() {
     confettiAF = requestAnimationFrame(draw);
   })();
 }
-
 function stopConfetti() {
   if (confettiAF) cancelAnimationFrame(confettiAF);
   const cv = document.getElementById('confetti-canvas');
